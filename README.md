@@ -1,1 +1,1 @@
-This is my development branch for my Login and Signup Screens
+This is my development branch is for setting up the initial navigation in the app
