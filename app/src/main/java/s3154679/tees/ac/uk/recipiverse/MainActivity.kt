@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
             RecipiverseTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 
-                    LoginScreen(
+                    SignUpScreen(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
