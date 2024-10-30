@@ -1,1 +1,1 @@
-This is my development branch is for setting up the initial navigation in the app
+This is branch has auth screens and navigation features added
