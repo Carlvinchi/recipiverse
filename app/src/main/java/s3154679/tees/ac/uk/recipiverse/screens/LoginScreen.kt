@@ -33,12 +33,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import s3154679.tees.ac.uk.recipiverse.R
+import s3154679.tees.ac.uk.recipiverse.navigation.SignupScreen
 
 
 @Composable
 fun LoginScreen(
-    modifier: Modifier
+    modifier: Modifier,
+    navController: NavHostController
 ) {
 
     var email by remember {
@@ -194,7 +197,10 @@ fun LoginScreen(
             Text(
                 text = "Sign Up",
                 modifier = Modifier
-                    .clickable {  },
+                    .clickable {
+                        navController.navigate(SignupScreen)
+
+                    },
                 fontWeight = FontWeight.Bold
             )
         }

@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import s3154679.tees.ac.uk.recipiverse.screens.LoginScreen
+import s3154679.tees.ac.uk.recipiverse.navigation.AppNavigation
 import s3154679.tees.ac.uk.recipiverse.screens.SignUpScreen
 import s3154679.tees.ac.uk.recipiverse.ui.theme.RecipiverseTheme
 
@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
             RecipiverseTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 
-                    SignUpScreen(
+                    AppNavigation(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }

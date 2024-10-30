@@ -33,12 +33,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import s3154679.tees.ac.uk.recipiverse.R
+import s3154679.tees.ac.uk.recipiverse.navigation.LoginScreen
 
 
 @Composable
 fun SignUpScreen(
-    modifier: Modifier
+    modifier: Modifier,
+    navController: NavHostController
 ) {
 
     var name by remember {
@@ -79,7 +82,7 @@ fun SignUpScreen(
             color = Color(0xFF00BFA6)
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         Image(
             painter = painterResource(id = R.drawable.tasting),
@@ -94,7 +97,7 @@ fun SignUpScreen(
         )
 
         Text(text = "Sign up for an account")
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
             value = name,
@@ -121,7 +124,7 @@ fun SignUpScreen(
                 )
             }
         )
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
             value = email,
@@ -149,7 +152,7 @@ fun SignUpScreen(
             }
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
             value = password,
@@ -194,13 +197,13 @@ fun SignUpScreen(
 
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(18.dp))
 
         Text(
             text = "Or sign up with",
         )
 
-        Spacer(modifier = Modifier.height(15.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         Image(
             painter = painterResource(id = R.drawable.google),
@@ -210,7 +213,7 @@ fun SignUpScreen(
 
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
 
         Row {
@@ -218,7 +221,9 @@ fun SignUpScreen(
             Text(
                 text = "Login",
                 modifier = Modifier
-                    .clickable {  },
+                    .clickable {
+                        navController.navigate(LoginScreen)
+                    },
                 fontWeight = FontWeight.Bold
             )
         }
