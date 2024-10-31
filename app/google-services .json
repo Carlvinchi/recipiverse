@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "979946881174",
+    "project_id": "s3154679-recipiverse",
+    "storage_bucket": "s3154679-recipiverse.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:979946881174:android:d2b9a47e0ae550629782b7",
+        "android_client_info": {
+          "package_name": "s3154679.tees.ac.uk.recipiverse"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "979946881174-gthouv7oeuobgs3bmanepkfefpm4ucds.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "s3154679.tees.ac.uk.recipiverse",
+            "certificate_hash": "16774c14e31de2574a49c8785fe10dd7acec777a"
+          }
+        },
+        {
+          "client_id": "979946881174-n036bffq9p9pa0i4n4tmflhfdbkcrns3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEuiA21lvXEB7YDdws6r3CE-pqGjQxnVw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "979946881174-n036bffq9p9pa0i4n4tmflhfdbkcrns3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

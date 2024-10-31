@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
 
+    id("com.google.gms.google-services")
+
 
     //kotlin serialization plugin
     kotlin("plugin.serialization") version "2.0.21"
@@ -65,6 +67,19 @@ dependencies {
 
     //Kotlin Serialization dependency
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+
+    //firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
+
+    //google auth for signin/signup with email and password
+    implementation("com.google.firebase:firebase-auth")
+
+    // for signin/signup with google
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
+    implementation("androidx.credentials:credentials:1.5.0-alpha06")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+    // optional - needed for credentials support from play services, for devices running
+    implementation("androidx.credentials:credentials-play-services-auth:1.5.0-alpha06")
 
 
     /**
