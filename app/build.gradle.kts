@@ -58,6 +58,7 @@ android {
 dependencies {
 
     implementation(libs.androidx.runtime.livedata)
+    implementation(libs.firebase.auth.ktx)
     /**
      * Start of my dependencies
      **/
