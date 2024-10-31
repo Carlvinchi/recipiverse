@@ -55,6 +55,7 @@ android {
 
 dependencies {
 
+    implementation(libs.androidx.runtime.livedata)
     /**
      * Start of my dependencies
      **/

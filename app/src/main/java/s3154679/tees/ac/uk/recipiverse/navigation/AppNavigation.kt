@@ -5,12 +5,15 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import s3154679.tees.ac.uk.recipiverse.screens.HomeScreen
 import s3154679.tees.ac.uk.recipiverse.screens.LoginScreen
 import s3154679.tees.ac.uk.recipiverse.screens.SignUpScreen
+import s3154679.tees.ac.uk.recipiverse.viewmodels.AuthViewModel
 
 @Composable
 fun AppNavigation(
     modifier: Modifier = Modifier,
+    authViewModel: AuthViewModel,
 ) {
     val navController = rememberNavController()
 
@@ -18,11 +21,15 @@ fun AppNavigation(
 
 
         composable<LoginScreen> {
-            LoginScreen(modifier, navController)
+            LoginScreen(modifier, navController, authViewModel)
         }
 
         composable<SignupScreen> {
-            SignUpScreen(modifier, navController)
+            SignUpScreen(modifier, navController, authViewModel)
+        }
+
+        composable<HomeScreen> {
+            HomeScreen(modifier, navController, authViewModel)
         }
     }
 }
