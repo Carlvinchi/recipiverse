@@ -12,12 +12,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -120,7 +122,7 @@ fun SignUpScreen(
         )
 
         Text(text = "Sign up for an account")
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         OutlinedTextField(
             value = name,
@@ -147,7 +149,6 @@ fun SignUpScreen(
                 )
             }
         )
-        Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
             value = email,
@@ -175,7 +176,6 @@ fun SignUpScreen(
             }
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
             value = password,
@@ -204,7 +204,7 @@ fun SignUpScreen(
             visualTransformation = PasswordVisualTransformation()
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(2.dp))
 
         Button(
             onClick = {
@@ -222,6 +222,11 @@ fun SignUpScreen(
 
         }
 
+        // show progress when state is loading
+        if(authState.value == AuthState.Loading){
+            CircularProgressIndicator()
+        }
+
         Spacer(modifier = Modifier.height(18.dp))
 
         Text(
@@ -234,6 +239,7 @@ fun SignUpScreen(
             painter = painterResource(id = R.drawable.google),
             contentDescription = "Google Icon",
             modifier = Modifier
+                .size(50.dp)
                 .clickable {
                     authViewModel.signInWithGoogle(context, scope)
                 }

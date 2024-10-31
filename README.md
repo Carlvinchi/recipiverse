@@ -1,1 +1,1 @@
-This is where I implement the signup and login functionalities using a ViewModel
+The main branch of the project where fully function versions exist.

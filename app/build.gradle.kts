@@ -11,7 +11,7 @@ plugins {
 
 android {
     namespace = "s3154679.tees.ac.uk.recipiverse"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "s3154679.tees.ac.uk.recipiverse"

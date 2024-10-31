@@ -75,7 +75,7 @@ class AuthViewModel : ViewModel() {
 
     //for signup process
     fun signup(email: String, password: String, name: String, scope: CoroutineScope) {
-        if(email.isEmpty() || password.isEmpty()){
+        if(email.isEmpty() || password.isEmpty() || name.isEmpty()){
             _authState.value = AuthState.Error("Email or Password can't be empty")
             return
         }

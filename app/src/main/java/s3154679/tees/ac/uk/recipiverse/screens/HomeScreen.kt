@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import s3154679.tees.ac.uk.recipiverse.navigation.LoginScreen
 import s3154679.tees.ac.uk.recipiverse.viewmodels.AuthState
 import s3154679.tees.ac.uk.recipiverse.viewmodels.AuthViewModel
 
@@ -31,7 +32,7 @@ fun HomeScreen(
     LaunchedEffect(authState.value) {
         when(authState.value) {
             is AuthState.Unauthenticated -> {
-                navController.navigate("login")
+                navController.navigate(LoginScreen)
             }
             else ->Unit
         }
