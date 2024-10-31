@@ -1,1 +1,1 @@
-This is branch has auth screens and navigation features added
+This is where I implement the signup and login functionalities using a ViewModel
