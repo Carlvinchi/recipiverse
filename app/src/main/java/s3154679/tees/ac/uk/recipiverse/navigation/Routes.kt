@@ -7,3 +7,6 @@ object LoginScreen
 
 @Serializable
 object SignupScreen
+
+@Serializable
+object HomeScreen
