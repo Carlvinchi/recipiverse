@@ -8,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import s3154679.tees.ac.uk.recipiverse.screens.HomeScreen
 import s3154679.tees.ac.uk.recipiverse.screens.LoginScreen
 import s3154679.tees.ac.uk.recipiverse.screens.SignUpScreen
+import s3154679.tees.ac.uk.recipiverse.screens.TermsScreen
 import s3154679.tees.ac.uk.recipiverse.viewmodels.AuthViewModel
 
 @Composable
@@ -30,6 +31,10 @@ fun AppNavigation(
 
         composable<HomeScreen> {
             HomeScreen(modifier, navController, authViewModel)
+        }
+
+        composable<TermsScreen> {
+            TermsScreen(navController)
         }
     }
 }

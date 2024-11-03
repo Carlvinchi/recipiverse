@@ -1,1 +1,1 @@
-The main branch of the project where fully function versions exist.
+This the development branch, where features are first added before merging with main branch.

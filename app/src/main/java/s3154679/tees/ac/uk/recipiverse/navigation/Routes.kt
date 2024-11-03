@@ -10,3 +10,6 @@ object SignupScreen
 
 @Serializable
 object HomeScreen
+
+@Serializable
+object TermsScreen
