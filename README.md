@@ -1,1 +1,1 @@
-This the development branch, where features are first added before merging with main branch.
+This the main branch with fully functional versions of the app.
