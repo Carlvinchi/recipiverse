@@ -7,11 +7,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import s3154679.tees.ac.uk.recipiverse.onboarding.OnboardingDisplayManager
+import s3154679.tees.ac.uk.recipiverse.screens.CreatePostScreen
+import s3154679.tees.ac.uk.recipiverse.screens.EditPostScreen
 import s3154679.tees.ac.uk.recipiverse.screens.HomeScreen
 import s3154679.tees.ac.uk.recipiverse.screens.LoginScreen
 import s3154679.tees.ac.uk.recipiverse.screens.OnboardingScreen
+import s3154679.tees.ac.uk.recipiverse.screens.PostDetailsScreen
+import s3154679.tees.ac.uk.recipiverse.screens.ProfileScreen
 import s3154679.tees.ac.uk.recipiverse.screens.SignUpScreen
 import s3154679.tees.ac.uk.recipiverse.screens.TermsScreen
+import s3154679.tees.ac.uk.recipiverse.screens.UserPostsScreen
 import s3154679.tees.ac.uk.recipiverse.viewmodels.AuthViewModel
 
 @Composable
@@ -44,6 +49,28 @@ fun AppNavigation(
         composable<OnboardingScreen> {
             OnboardingScreen(navController = navController)
         }
+
+        composable<ProfileScreen> {
+            ProfileScreen(modifier, navController, authViewModel)
+
+        }
+
+        composable<CreatePostScreen> {
+            CreatePostScreen(modifier, navController, authViewModel)
+        }
+
+        composable<UserPostsScreen> {
+            UserPostsScreen(modifier, navController, authViewModel)
+        }
+
+        composable<PostDetailsScreen> {
+            PostDetailsScreen(modifier, navController, authViewModel)
+        }
+
+        composable<EditPostScreen> {
+            EditPostScreen(modifier, navController, authViewModel)
+        }
+
     }
 
 }

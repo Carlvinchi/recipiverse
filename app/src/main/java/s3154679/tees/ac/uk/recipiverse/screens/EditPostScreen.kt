@@ -17,13 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import s3154679.tees.ac.uk.recipiverse.navigation.CreatePostScreen
-import s3154679.tees.ac.uk.recipiverse.navigation.LoginScreen
+import s3154679.tees.ac.uk.recipiverse.navigation.PostDetailsScreen
 import s3154679.tees.ac.uk.recipiverse.viewmodels.AuthState
 import s3154679.tees.ac.uk.recipiverse.viewmodels.AuthViewModel
 
 @Composable
-fun HomeScreen(
+fun EditPostScreen(
     modifier: Modifier,
     navController: NavHostController,
     authViewModel: AuthViewModel
@@ -35,7 +34,7 @@ fun HomeScreen(
     LaunchedEffect(authState.value) {
         when(authState.value) {
             is AuthState.Unauthenticated -> {
-                navController.navigate(LoginScreen)
+                navController.navigate(s3154679.tees.ac.uk.recipiverse.navigation.LoginScreen)
             }
             else ->Unit
         }
@@ -48,7 +47,7 @@ fun HomeScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Home Page", fontSize = 32.sp)
+        Text(text = "Edit Post Page", fontSize = 32.sp)
 
         Text(text = "Email is: ${authViewModel.auth.currentUser?.email}")
 
@@ -64,7 +63,7 @@ fun HomeScreen(
 
         Button(
             onClick = {
-                navController.navigate(CreatePostScreen)
+                navController.navigate(PostDetailsScreen)
             },
             colors = ButtonColors(
                 containerColor = Color(0xFF00BFA6),
@@ -73,7 +72,7 @@ fun HomeScreen(
                 disabledContentColor = Color.White
             ),
         ) {
-            Text(text = "Go To Create Post")
+            Text(text = "Go To Post Details")
         }
 
         // show progress when state is loading
