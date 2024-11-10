@@ -83,6 +83,8 @@ dependencies {
     // optional - needed for credentials support from play services, for devices running
     implementation("androidx.credentials:credentials-play-services-auth:1.5.0-alpha06")
 
+    //for splash screen
+    implementation("androidx.core:core-splashscreen:1.1.0-rc01")
 
     /**
      * End of my dependencies

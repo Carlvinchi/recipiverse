@@ -13,3 +13,6 @@ object HomeScreen
 
 @Serializable
 object TermsScreen
+
+@Serializable
+object OnboardingScreen
