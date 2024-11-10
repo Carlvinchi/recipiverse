@@ -16,3 +16,18 @@ object TermsScreen
 
 @Serializable
 object OnboardingScreen
+
+@Serializable
+object ProfileScreen
+
+@Serializable
+object CreatePostScreen
+
+@Serializable
+object UserPostsScreen
+
+@Serializable
+object PostDetailsScreen
+
+@Serializable
+object EditPostScreen
