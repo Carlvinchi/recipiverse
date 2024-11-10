@@ -123,7 +123,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = email,
             onValueChange = {
-                email = it
+                email = it.trim()
                 isEmailError = !Patterns.EMAIL_ADDRESS.matcher(it).matches() || it.isEmpty()
             },
             label = {
