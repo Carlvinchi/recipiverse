@@ -30,6 +30,7 @@ fun HomeScreen(
 
 ) {
     val authState = authViewModel.authState.observeAsState()
+    val userState = authViewModel.user.observeAsState()
 
     //navigate to login page if unauthenticated
     LaunchedEffect(authState.value) {
@@ -50,7 +51,8 @@ fun HomeScreen(
     ) {
         Text(text = "Home Page", fontSize = 32.sp)
 
-        Text(text = "Email is: ${authViewModel.auth.currentUser?.email}")
+        Text(text = "Email is: ${userState.value?.email}")
+        Text(text = "Display Name is: ${userState.value?.name}")
 
         TextButton(
             onClick = {
