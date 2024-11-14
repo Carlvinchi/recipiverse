@@ -86,6 +86,13 @@ dependencies {
     //for splash screen
     implementation("androidx.core:core-splashscreen:1.1.0-rc01")
 
+
+    // For Firestore
+    implementation("com.google.firebase:firebase-firestore")
+
+    //For Storage
+    implementation("com.google.firebase:firebase-storage")
+
     /**
      * End of my dependencies
      **/
