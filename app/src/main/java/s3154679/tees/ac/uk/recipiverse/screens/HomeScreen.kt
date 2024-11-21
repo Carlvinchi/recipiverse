@@ -21,6 +21,7 @@ import s3154679.tees.ac.uk.recipiverse.navigation.CreatePostScreen
 import s3154679.tees.ac.uk.recipiverse.navigation.LoginScreen
 import s3154679.tees.ac.uk.recipiverse.viewmodels.AuthState
 import s3154679.tees.ac.uk.recipiverse.viewmodels.AuthViewModel
+import s3154679.tees.ac.uk.recipiverse.viewmodels.Loader
 
 @Composable
 fun HomeScreen(
@@ -29,15 +30,19 @@ fun HomeScreen(
     authViewModel: AuthViewModel
 
 ) {
+    //observe auth state and loader state from viewmodel
     val authState = authViewModel.authState.observeAsState()
     val userState = authViewModel.user.observeAsState()
+    val loaderState = authViewModel.loaderState.observeAsState()
 
+    authViewModel.getUserFromFirestore()
     //navigate to login page if unauthenticated
     LaunchedEffect(authState.value) {
         when(authState.value) {
             is AuthState.Unauthenticated -> {
                 navController.navigate(LoginScreen)
             }
+
             else ->Unit
         }
     }
@@ -79,7 +84,7 @@ fun HomeScreen(
         }
 
         // show progress when state is loading
-        if(authState.value == AuthState.Loading){
+        if(loaderState.value == Loader.Loading){
             CircularProgressIndicator()
         }
 

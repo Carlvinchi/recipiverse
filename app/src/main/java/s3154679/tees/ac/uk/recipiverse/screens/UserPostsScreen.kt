@@ -20,6 +20,7 @@ import androidx.navigation.NavHostController
 import s3154679.tees.ac.uk.recipiverse.navigation.HomeScreen
 import s3154679.tees.ac.uk.recipiverse.viewmodels.AuthState
 import s3154679.tees.ac.uk.recipiverse.viewmodels.AuthViewModel
+import s3154679.tees.ac.uk.recipiverse.viewmodels.Loader
 
 @Composable
 fun UserPostsScreen(
@@ -28,7 +29,9 @@ fun UserPostsScreen(
     authViewModel: AuthViewModel
 
 ) {
+    //observe all states
     val authState = authViewModel.authState.observeAsState()
+    val loaderState = authViewModel.loaderState.observeAsState()
 
     //navigate to login page if unauthenticated
     LaunchedEffect(authState.value) {
@@ -75,7 +78,7 @@ fun UserPostsScreen(
             Text(text = "Go Home")
         }
         // show progress when state is loading
-        if(authState.value == AuthState.Loading){
+        if(loaderState.value == Loader.Loading){
             CircularProgressIndicator()
         }
 

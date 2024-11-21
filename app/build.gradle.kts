@@ -93,6 +93,14 @@ dependencies {
     //For Storage
     implementation("com.google.firebase:firebase-storage")
 
+
+    //for coil image library
+    implementation("io.coil-kt.coil3:coil-compose:3.0.0-rc01")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.0-rc01")
+
+    //permissions manager using accompanist
+    implementation ("com.google.accompanist:accompanist-permissions:0.36.0")
+
     /**
      * End of my dependencies
      **/

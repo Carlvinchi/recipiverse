@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -39,11 +40,13 @@ import s3154679.tees.ac.uk.recipiverse.screens.TermsScreen
 import s3154679.tees.ac.uk.recipiverse.screens.UserPostsScreen
 import s3154679.tees.ac.uk.recipiverse.viewmodels.AuthState
 import s3154679.tees.ac.uk.recipiverse.viewmodels.AuthViewModel
+import s3154679.tees.ac.uk.recipiverse.viewmodels.CameraViewModel
 
 @Composable
 fun AppNavigation(
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel,
+    cameraViewModel: CameraViewModel
 ) {
     val authState = authViewModel.authState.observeAsState()
     //val userState = authViewModel.user.observeAsState()
@@ -59,7 +62,7 @@ fun AppNavigation(
         BottomNavigationItems("Logout", Icons.AutoMirrored.Filled.ExitToApp)
     )
 
-    var selectedIndex by remember { mutableIntStateOf(0) }
+    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
 
 
 
@@ -77,7 +80,8 @@ fun AppNavigation(
                                 when (index) {
                                     0 -> {
                                         navController.navigate(HomeScreen){
-                                            popUpTo(navController.graph.findStartDestination().id){inclusive = true}
+                                           popUpTo(navController.graph.findStartDestination().id){inclusive = true}
+
                                         }
                                     }
                                     1 -> navController.navigate(CreatePostScreen)
@@ -130,7 +134,7 @@ fun AppNavigation(
             }
 
             composable<ProfileScreen> {
-                ProfileScreen(modifier, navController, authViewModel)
+                ProfileScreen(modifier, navController, authViewModel, cameraViewModel)
 
             }
 

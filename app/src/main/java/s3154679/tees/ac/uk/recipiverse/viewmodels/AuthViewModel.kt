@@ -21,22 +21,32 @@ import java.util.UUID
 
 class AuthViewModel : ViewModel() {
 
+    //firebase variables
     val auth: FirebaseAuth = FirebaseAuth.getInstance()
-
     val firestore = Firebase.firestore
-
     val usersCollection = "users"
 
+
+    //variables for authentication states
     private val _authState = MutableLiveData<AuthState>()
     val authState: LiveData<AuthState> = _authState
 
+
+    //variables for setting loader states
+    private val _loaderState = MutableLiveData<Loader>()
+    val loaderState: LiveData<Loader> = _loaderState
+
+
+    //variables for setting up user object
     private val _user = MutableLiveData<User?>()
     val user: LiveData<User?> = _user
+
 
     //Automatically calls the method when app is launched
     init {
         checkAuthStatus()
     }
+
 
     //called to check if user is signed in or not
     private fun checkAuthStatus() {
@@ -48,6 +58,7 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+
     //for login process
     fun login(email: String, password: String, scope: CoroutineScope) {
         if (email.isEmpty() || password.isEmpty()) {
@@ -55,7 +66,7 @@ class AuthViewModel : ViewModel() {
             return
         }
 
-        _authState.value = AuthState.Loading
+        _loaderState.value = Loader.Loading
 
         scope.launch {
             try {
@@ -65,17 +76,24 @@ class AuthViewModel : ViewModel() {
                         //fetch user details from firestore
                         getUserFromFirestore()
 
-
+                        //update loader state and authentication state
+                        _loaderState.value = Loader.StopLoading
                         _authState.value = AuthState.Authenticated
 
+
                     } else {
-                        _authState.value =
-                            AuthState.Error(task.exception?.message ?: "Something went wrong")
+
+                        //update loader state and authentication state
+                        _loaderState.value = Loader.StopLoading
+                        _authState.value = AuthState.Error(task.exception?.message ?: "Something went wrong")
 
                     }
 
                 }
             } catch (e: Exception) {
+
+                //update loader state and authentication state
+                _loaderState.value = Loader.StopLoading
                 _authState.value = e.message?.let { AuthState.Error(it) }
             }
         }
@@ -91,7 +109,7 @@ class AuthViewModel : ViewModel() {
             return
         }
 
-        _authState.value = AuthState.Loading
+        _loaderState.value = Loader.Loading
 
         scope.launch {
             try {
@@ -105,15 +123,23 @@ class AuthViewModel : ViewModel() {
                         getUserFromFirestore()
 
 
+                        //update loader state and authentication state
+                        _loaderState.value = Loader.StopLoading
                         _authState.value = AuthState.Authenticated
 
                     }else{
+
+                        //update loader state and authentication state
+                        _loaderState.value = Loader.StopLoading
                         _authState.value = AuthState.Error(task.exception?.message?:"Something went wrong")
 
                     }
 
                 }
             }catch (e: Exception) {
+
+                //update loader state and authentication state
+                _loaderState.value = Loader.StopLoading
                 _authState.value = e.message?.let { AuthState.Error(it) }
             }
         }
@@ -134,7 +160,8 @@ class AuthViewModel : ViewModel() {
 
     //for login/signup with Google
     fun signInWithGoogle(context: Context, scope: CoroutineScope) {
-        _authState.value = AuthState.Loading
+
+        _loaderState.value = Loader.Loading
 
         val credentialManger = CredentialManager.create(context)
 
@@ -178,10 +205,16 @@ class AuthViewModel : ViewModel() {
                             getUserFromFirestore()
                         }
 
-                        getUserFromFirestore()
+                        //getUserFromFirestore()
+
+                        //update loader state and authentication state
+                        _loaderState.value = Loader.StopLoading
                         _authState.value = AuthState.Authenticated
 
                     }else{
+
+                        //update loader state and authentication state
+                        _loaderState.value = Loader.StopLoading
                         _authState.value = AuthState.Error(task.exception?.message?:"Something went wrong")
 
                     }
@@ -189,6 +222,9 @@ class AuthViewModel : ViewModel() {
                 }
 
             }catch (e: Exception){
+
+                //update loader state and authentication state
+                _loaderState.value = Loader.StopLoading
                 _authState.value = e.message?.let { AuthState.Error(it) }
             }
         }
@@ -198,10 +234,14 @@ class AuthViewModel : ViewModel() {
 
     //for signout process
     fun signout() {
-        _authState.value = AuthState.Loading
+
+        _loaderState.value = Loader.Loading
 
         auth.signOut()
+
+        //update loader state and authentication state
         _authState.value = AuthState.Unauthenticated
+        _loaderState.value = Loader.StopLoading
     }
 
 
@@ -214,7 +254,7 @@ class AuthViewModel : ViewModel() {
         val user = hashMapOf(
             "name" to name,
             "email" to email,
-            "profileImage" to ""
+            "profileImageUrl" to ""
         )
 
         try {
@@ -251,11 +291,12 @@ class AuthViewModel : ViewModel() {
 
                     val name = it.get("name").toString()
                     val email = it.get("email").toString()
+                    val profileImage = it.get("profileImageUrl").toString()
 
                     Log.i("Fetched Name", name)
                     Log.i("Fetched Email", email)
 
-                    _user.value = User(name, email)
+                    _user.value = User(name, email, profileImage)
 
                 }
                 .addOnFailureListener {
@@ -275,48 +316,53 @@ class AuthViewModel : ViewModel() {
     }
 
     //for updating user details in firestore
-    fun updateUserInFirestore(name: String, email: String, scope: CoroutineScope) {
+    fun updateUserInFirestore(name: String, email: String) {
 
         if(name.isEmpty() || email.isEmpty()){
             _authState.value = AuthState.Error("Name or Email can't be empty")
             return
         }
 
-        _authState.value = AuthState.Loading
+        _loaderState.value = Loader.Loading
 
         val userId = auth.currentUser?.uid
         val user = hashMapOf(
             "name" to name,
-            "email" to email,
-            "profileImage" to ""
+            "email" to email
         )
 
-        scope.launch {
-            try {
-                firestore.collection(usersCollection).document(userId!!).update(user as Map<String, Any>)
-                    .addOnSuccessListener {
-                        getUserFromFirestore()
-                        _authState.value = AuthState.StopLoading
-                    }
-                    .addOnFailureListener {
-                        _user.value = User(
-                            "no name",
-                            "no email"
-                        )
-                    }
-            }catch (e: Exception){
-                _user.value = User(
-                    "no name",
-                    "no email"
-                )
-            }
+        try {
+            firestore.collection(usersCollection).document(userId!!).update(user as Map<String, Any>)
+                .addOnSuccessListener {
+
+                    getUserFromFirestore()
+
+                    _loaderState.value = Loader.StopLoading
+                }
+                .addOnFailureListener {
+                    _user.value = User(
+                        "no name",
+                        "no email"
+                    )
+
+                    _loaderState.value = Loader.StopLoading
+                }
+        }catch (e: Exception){
+            _user.value = User(
+                "no name",
+                "no email"
+            )
+
+            _loaderState.value = Loader.StopLoading
         }
     }
+
+
 
     //for deleting user details in firestore
     fun deleteUserFromFirestore(scope: CoroutineScope) {
 
-        _authState.value = AuthState.Loading
+        _loaderState.value = Loader.Loading
 
         val userId = auth.currentUser?.uid
 
@@ -324,13 +370,18 @@ class AuthViewModel : ViewModel() {
             try {
                 firestore.collection(usersCollection).document(userId!!).delete()
                     .addOnSuccessListener {
-                        _authState.value = AuthState.StopLoading
+
+                        _loaderState.value = Loader.StopLoading
                     }
                     .addOnFailureListener {
-                        _authState.value = AuthState.StopLoading
+
+                        _loaderState.value = Loader.StopLoading
+                        _authState.value = AuthState.Error("Could not delete user")
                     }
             }catch (e: Exception){
-                _authState.value = AuthState.StopLoading
+
+                _loaderState.value = Loader.StopLoading
+                _authState.value = AuthState.Error(e.message ?:"could not delete user")
             }
         }
     }
@@ -343,10 +394,8 @@ class AuthViewModel : ViewModel() {
 sealed class AuthState {
     object  Authenticated: AuthState()
     object Unauthenticated: AuthState()
-    object Loading: AuthState()
-    object StopLoading: AuthState()
     data class Error(val message: String): AuthState()
 }
 
 //class for user details
-data class User(val name: String, val email: String, val profileImage: String = "")
+data class User(val name: String, val email: String, val profileImageUrl: String = "")
