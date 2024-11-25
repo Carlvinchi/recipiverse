@@ -2,6 +2,7 @@ package s3154679.tees.ac.uk.recipiverse.viewmodels
 
 import android.Manifest
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.LiveData
@@ -12,6 +13,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
+import com.google.maps.android.ktx.utils.BuildConfig
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -34,11 +36,16 @@ class LocationViewModel: ViewModel() {
 
     fun fetchNearbyPlaces(context: Context, locationCallback: (List<Place>) -> Unit) {
 
+
+        val applicationInfo: ApplicationInfo = context.packageManager
+            .getApplicationInfo(context.packageName, PackageManager.GET_META_DATA)
+
+        val apiKey = applicationInfo.metaData["com.google.android.geo.API_KEY"]
         _loaderState.value = Loader.Loading
 
         // Initialize the Places API with your API key
         if(!Places.isInitialized()){
-            Places.initialize(context, context.getString(R.string.maps_key))
+            Places.initialize(context, apiKey.toString())
 
         }
 
