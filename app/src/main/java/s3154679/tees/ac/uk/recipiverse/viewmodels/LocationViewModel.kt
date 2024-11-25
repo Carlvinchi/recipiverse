@@ -15,6 +15,7 @@ import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import s3154679.tees.ac.uk.recipiverse.R
 
 class LocationViewModel: ViewModel() {
 
@@ -37,7 +38,7 @@ class LocationViewModel: ViewModel() {
 
         // Initialize the Places API with your API key
         if(!Places.isInitialized()){
-            Places.initialize(context, "AIzaSyACsUbiVAbQ-d5_o0DzJqCdXYqWAi8SZt8")
+            Places.initialize(context, context.getString(R.string.maps_key))
 
         }
 
