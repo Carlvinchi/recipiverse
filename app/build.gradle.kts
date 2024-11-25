@@ -2,8 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
 
-    id("com.google.gms.google-services")
+   id("com.google.gms.google-services")
 
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 
     //kotlin serialization plugin
     kotlin("plugin.serialization") version "2.0.21"
@@ -55,6 +56,16 @@ android {
     }
 }
 
+secrets {
+    // Optionally specify a different file name containing your secrets.
+    // The plugin defaults to "local.properties"
+    propertiesFileName = "secrets.properties"
+
+    // A properties file containing default secret values. This file can be
+    // checked in version control.
+    defaultPropertiesFileName = "local.defaults.properties"
+}
+
 dependencies {
 
     implementation(libs.androidx.runtime.livedata)
@@ -100,6 +111,18 @@ dependencies {
 
     //permissions manager using accompanist
     implementation ("com.google.accompanist:accompanist-permissions:0.36.0")
+
+    //Google Google Maps
+    implementation ("com.google.maps.android:maps-compose:6.2.0")
+    implementation ("com.google.maps.android:maps-compose-utils:6.2.0")
+    implementation ("com.google.maps.android:maps-compose-widgets:6.2.0")
+    //implementation ("com.google.android.gms:play-services-location:21.3.0")
+    implementation ("com.google.android.libraries.places:places:4.0.0")
+
+
+    // my depenpencies for exo player
+    implementation("androidx.media3:media3-exoplayer:1.4.1")
+    implementation("androidx.media3:media3-ui:1.4.1")
 
     /**
      * End of my dependencies

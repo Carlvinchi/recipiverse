@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -41,12 +40,14 @@ import s3154679.tees.ac.uk.recipiverse.screens.UserPostsScreen
 import s3154679.tees.ac.uk.recipiverse.viewmodels.AuthState
 import s3154679.tees.ac.uk.recipiverse.viewmodels.AuthViewModel
 import s3154679.tees.ac.uk.recipiverse.viewmodels.CameraViewModel
+import s3154679.tees.ac.uk.recipiverse.viewmodels.LocationViewModel
 
 @Composable
 fun AppNavigation(
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel,
-    cameraViewModel: CameraViewModel
+    cameraViewModel: CameraViewModel,
+    locationViewModel: LocationViewModel
 ) {
     val authState = authViewModel.authState.observeAsState()
     //val userState = authViewModel.user.observeAsState()
@@ -122,7 +123,7 @@ fun AppNavigation(
             }
 
             composable<HomeScreen> {
-                HomeScreen(modifier, navController, authViewModel)
+                HomeScreen(modifier, navController, authViewModel, cameraViewModel, locationViewModel)
             }
 
             composable<TermsScreen> {
@@ -139,7 +140,7 @@ fun AppNavigation(
             }
 
             composable<CreatePostScreen> {
-                CreatePostScreen(modifier, navController, authViewModel)
+                CreatePostScreen(modifier, navController, authViewModel, locationViewModel, cameraViewModel)
             }
 
             composable<UserPostsScreen> {
