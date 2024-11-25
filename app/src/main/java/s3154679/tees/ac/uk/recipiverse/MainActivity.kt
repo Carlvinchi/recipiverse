@@ -26,6 +26,8 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
 
+
+
         // Initialize the AuthViewModel
         val authViewModel: AuthViewModel by viewModels()
         val cameraViewModel: CameraViewModel by viewModels()

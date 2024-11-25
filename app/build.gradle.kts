@@ -10,6 +10,8 @@ plugins {
     kotlin("plugin.serialization") version "2.0.21"
 }
 
+
+
 android {
     namespace = "s3154679.tees.ac.uk.recipiverse"
     compileSdk = 35
@@ -28,12 +30,16 @@ android {
     }
 
     buildTypes {
+
+
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+
+
         }
     }
     compileOptions {
