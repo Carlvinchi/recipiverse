@@ -13,6 +13,8 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import s3154679.tees.ac.uk.recipiverse.navigation.AppNavigation
 import s3154679.tees.ac.uk.recipiverse.ui.theme.RecipiverseTheme
 import s3154679.tees.ac.uk.recipiverse.viewmodels.AuthViewModel
+import s3154679.tees.ac.uk.recipiverse.viewmodels.CameraViewModel
+import s3154679.tees.ac.uk.recipiverse.viewmodels.LocationViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,13 +28,19 @@ class MainActivity : ComponentActivity() {
 
         // Initialize the AuthViewModel
         val authViewModel: AuthViewModel by viewModels()
+        val cameraViewModel: CameraViewModel by viewModels()
+        val locationViewModel: LocationViewModel by viewModels()
+
+
         setContent {
             RecipiverseTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 
                     AppNavigation(
                         modifier = Modifier.padding(innerPadding),
-                        authViewModel = authViewModel
+                        authViewModel = authViewModel,
+                        cameraViewModel = cameraViewModel,
+                        locationViewModel = locationViewModel
                     )
                 }
             }

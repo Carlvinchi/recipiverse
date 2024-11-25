@@ -46,6 +46,7 @@ import s3154679.tees.ac.uk.recipiverse.navigation.HomeScreen
 import s3154679.tees.ac.uk.recipiverse.navigation.SignupScreen
 import s3154679.tees.ac.uk.recipiverse.viewmodels.AuthState
 import s3154679.tees.ac.uk.recipiverse.viewmodels.AuthViewModel
+import s3154679.tees.ac.uk.recipiverse.viewmodels.Loader
 
 
 @Composable
@@ -71,8 +72,9 @@ fun LoginScreen(
         mutableStateOf(false)
     }
 
-    //we observe the authentication state
+    //we observe the authentication and load state
     val authState = authViewModel.authState.observeAsState()
+    val loaderState = authViewModel.loaderState.observeAsState()
 
 
     val context = LocalContext.current
@@ -204,7 +206,7 @@ fun LoginScreen(
         }
 
         // show progress when state is loading
-        if(authState.value == AuthState.Loading){
+        if(loaderState.value == Loader.Loading){
             CircularProgressIndicator()
         }
 
