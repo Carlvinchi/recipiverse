@@ -25,10 +25,10 @@ class LocationViewModel: ViewModel() {
     private val _loaderState = MutableLiveData<Loader>()
     val loaderState: LiveData<Loader> = _loaderState
 
-    private val _selectedLocation = MutableStateFlow<LatLng?>(null)
-    val selectedLocation: StateFlow<LatLng?> get() = _selectedLocation
+    private val _selectedLocation = MutableStateFlow<Place?>(null)
+    val selectedLocation: StateFlow<Place?> get() = _selectedLocation
 
-    fun updateLocation(location: LatLng) {
+    fun updateLocation(location: Place) {
         viewModelScope.launch {
             _selectedLocation.emit(location)
         }

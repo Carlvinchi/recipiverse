@@ -210,7 +210,7 @@ class CameraViewModel: ViewModel() {
 
 
     //Function to add post to firestore database
-    fun addPost(title: String, description: String, image: Uri, video: Uri, latLng: LatLng, scope: CoroutineScope){
+    fun addPost(title: String, description: String, image: Uri, video: Uri, userName: String, locName: String, latLng: LatLng, category: String, scope: CoroutineScope){
 
         _uploadState.value = UploadState.Loading
 
@@ -239,14 +239,19 @@ class CameraViewModel: ViewModel() {
 
                                         _postVideoUrl.value = url.toString()
 
+                                        val keywords = title.lowercase().split(" ")
                                         val postObject = hashMapOf(
                                             "title" to title,
                                             "description" to description,
                                             "image" to _postImageUrl.value,
                                             "video" to _postVideoUrl.value,
                                             "userId" to auth.currentUser?.uid,
+                                            "userDisplayName" to userName,
+                                            "userLocationName" to locName,
                                             "userLocation" to geoPoint,
-                                            "dateCreated" to Timestamp.now()
+                                            "dateCreated" to Timestamp.now(),
+                                            "category" to category,
+                                            "keywords" to keywords
                                         )
 
 
@@ -298,14 +303,17 @@ class CameraViewModel: ViewModel() {
                 val posts =  it.documents.map { document ->
                     Post(
                         id = document.id,
-                        title = document.getString("title") ?: "No title",
-                        description = document.getString("description") ?: "No description",
-                        image = document.getString("image") ?: "No image",
-                        video = document.getString("video") ?: "No video",
+                        title = document.getString("title") ?: "",
+                        description = document.getString("description") ?: "",
+                        image = document.getString("image") ?: "",
+                        video = document.getString("video") ?: "",
+                        userLocationName = document.getString("userLocationName") ?: "",
+                        userDisplayName = document.getString("userDisplayName") ?: "",
                         userLocation = document.getGeoPoint("userLocation")?.let { geoPoint ->
                             LatLng(geoPoint.latitude, geoPoint.longitude)
                         },
-                        dateCreated = document.getTimestamp("dateCreated")?.toDate().toString() ?: Date().toString()
+                        dateCreated = document.getTimestamp("dateCreated")?.toDate().toString() ?: Date().toString(),
+                        category = document.getString("category") ?: ""
                     )
                 }
 
@@ -318,6 +326,91 @@ class CameraViewModel: ViewModel() {
                 _uploadState.value = UploadState.Error("Posts fetched failed")
             }
     }
+
+
+    //function to fetch posts by category from firestore database
+    fun fetchPostsByCategory(category: String) {
+
+        _uploadState.value = UploadState.Loading
+
+        firestore.collection(postsCollection).whereEqualTo("category", category)
+            .get()
+            .addOnSuccessListener {
+                Log.i("Posts", "Posts fetched successfully")
+
+                val posts =  it.documents.map { document ->
+                    Post(
+                        id = document.id,
+                        title = document.getString("title") ?: "",
+                        description = document.getString("description") ?: "",
+                        image = document.getString("image") ?: "",
+                        video = document.getString("video") ?: "",
+                        userLocationName = document.getString("userLocationName") ?: "",
+                        userDisplayName = document.getString("userDisplayName") ?: "",
+                        userLocation = document.getGeoPoint("userLocation")?.let { geoPoint ->
+                            LatLng(geoPoint.latitude, geoPoint.longitude)
+                        },
+                        dateCreated = document.getTimestamp("dateCreated")?.toDate().toString() ?: Date().toString(),
+                        category = document.getString("category") ?: ""
+                    )
+                }
+
+                _post.value = posts
+
+                _uploadState.value = UploadState.StopLoading
+            }
+            .addOnFailureListener{
+                Log.i("Posts", "Posts fetched failed")
+                _uploadState.value = UploadState.Error("Posts fetched failed")
+            }
+    }
+
+    //function to fetch posts by category from firestore database
+    fun fetchPostsBySearch(sententce: String) {
+
+        _uploadState.value = UploadState.Loading
+
+        val searchKeywords = sententce.lowercase().split(" ")
+
+        firestore.collection(postsCollection)
+            .get()
+            .addOnSuccessListener {snapshot ->
+
+
+                val documents = snapshot.documents.filter { document ->
+                    val keywords = document.get("keywords") as List<String>
+                    keywords.any { searchKeywords.contains(it) }
+                }
+
+                val posts =  documents.map { document ->
+                    Post(
+                        id = document.id,
+                        title = document.getString("title") ?: "",
+                        description = document.getString("description") ?: "",
+                        image = document.getString("image") ?: "",
+                        video = document.getString("video") ?: "",
+                        userLocationName = document.getString("userLocationName") ?: "",
+                        userDisplayName = document.getString("userDisplayName") ?: "",
+                        userLocation = document.getGeoPoint("userLocation")?.let { geoPoint ->
+                            LatLng(geoPoint.latitude, geoPoint.longitude)
+                        },
+                        dateCreated = document.getTimestamp("dateCreated")?.toDate().toString() ?: Date().toString(),
+                        category = document.getString("category") ?: ""
+                    )
+                }
+
+                _post.value = posts
+
+                _uploadState.value = UploadState.StopLoading
+            }
+            .addOnFailureListener{
+                Log.i("Posts", "Posts fetched failed")
+                _uploadState.value = UploadState.Error("Posts fetched failed")
+            }
+    }
+
+
+
 
 }
 
@@ -337,7 +430,11 @@ data class Post(
     val image: String = "",
     val video: String = "",
     val userId: String = "",
+    val userDisplayName: String = "",
+    val userLocationName: String = "",
     val userLocation: LatLng?,
-    val dateCreated: String = ""
+    val dateCreated: String = "",
+    val category: String = "",
+    val keywords: List<String> = emptyList()
 
 )

@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -94,6 +95,7 @@ fun CreatePostScreen(
     val authState = authViewModel.authState.observeAsState()
     val loaderState = locationViewModel.loaderState.observeAsState()
     val uploadState = cameraViewModel.uploadState.observeAsState()
+    val userState = authViewModel.user.observeAsState()
 
     //observe image media uri and video media uri
     val imageMediaUri by cameraViewModel.imageMediaUri.collectAsState()
@@ -115,7 +117,7 @@ fun CreatePostScreen(
 
     //to store places when api is called
     val placesList = remember { mutableStateOf<List<Place>>(emptyList()) }
-    val location = locationViewModel.selectedLocation.collectAsStateWithLifecycle().value ?: LatLng(1.35, 103.87)
+    val location = locationViewModel.selectedLocation.collectAsStateWithLifecycle().value
 
     //location access permissions
     val locationPermissions = rememberMultiplePermissionsState(
@@ -127,6 +129,10 @@ fun CreatePostScreen(
 
     //tracking selected location
     var selectedOption by remember { mutableStateOf("") }
+
+
+    //tracking selected category
+    var selectedCategory by remember { mutableStateOf("") }
 
     //to control when to show select location
     var showLocation by remember { mutableStateOf(false) }
@@ -183,6 +189,14 @@ fun CreatePostScreen(
 
 
 
+    val categoriesList = listOf(
+        "AFRICAN",
+        "ASIAN",
+        "EUROPEAN",
+        "AMERICAN"
+    )
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -198,6 +212,7 @@ fun CreatePostScreen(
         Spacer(modifier = Modifier.height(25.dp))
 
         OutlinedTextField(
+            modifier = Modifier.padding(8.dp),
             value = title,
             onValueChange = {
                 title = it
@@ -209,7 +224,17 @@ fun CreatePostScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
 
+        SelectCategory(
+            options = categoriesList,
+            selectedOption = selectedCategory,
+            onOptionSelected = { selectedCategory = it }
+        )
+
+
+        Spacer(modifier = Modifier.height(10.dp))
+
         OutlinedTextField(
+            modifier = Modifier.padding(8.dp),
             value = description,
             onValueChange = {
                 description = it
@@ -246,7 +271,13 @@ fun CreatePostScreen(
                         }
                     }
 
-                }
+                },
+                colors = ButtonColors(
+                    containerColor = Color(0xFF00BFA6),
+                    contentColor = Color.White,
+                    disabledContainerColor = Color.Gray,
+                    disabledContentColor = Color.White
+                )
             ) {
 
                 Text(text = "Take Photo")
@@ -259,7 +290,13 @@ fun CreatePostScreen(
             Button(
                 onClick = {
                     galleryLauncher.launch("image/*")
-                }
+                },
+                colors = ButtonColors(
+                    containerColor = Color(0xFF00BFA6),
+                    contentColor = Color.White,
+                    disabledContainerColor = Color.Gray,
+                    disabledContentColor = Color.White
+                )
             ) {
 
                 Text(text = "Choose Photo")
@@ -320,7 +357,13 @@ fun CreatePostScreen(
                         }
                     }
 
-                }
+                },
+                colors = ButtonColors(
+                    containerColor = Color(0xFF00BFA6),
+                    contentColor = Color.White,
+                    disabledContainerColor = Color.Gray,
+                    disabledContentColor = Color.White
+                )
             ) {
 
                 Text(text = "Record Video")
@@ -331,7 +374,13 @@ fun CreatePostScreen(
             Button(
                 onClick = {
                     videoGalleryLauncher.launch("video/*")
-                }
+                },
+                colors = ButtonColors(
+                    containerColor = Color(0xFF00BFA6),
+                    contentColor = Color.White,
+                    disabledContainerColor = Color.Gray,
+                    disabledContentColor = Color.White
+                )
             ) {
 
                 Text(text = "Choose Video")
@@ -386,7 +435,13 @@ fun CreatePostScreen(
                         }
                     }
 
-                }
+                },
+                colors = ButtonColors(
+                    containerColor = Color(0xFF00BFA6),
+                    contentColor = Color.White,
+                    disabledContainerColor = Color.Gray,
+                    disabledContentColor = Color.White
+                )
             ) {
                 Text(text = "Add Location")
 
@@ -426,8 +481,11 @@ fun CreatePostScreen(
                     description = description,
                     image = imageMediaUri!!,
                     video = videoMediaUri!!,
-                    latLng = location,
-                    scope = scope
+                    userName = userState.value?.name ?: "",
+                    locName = location?.name ?: "",
+                    latLng = location?.latLng?: LatLng(0.0, 0.0),
+                    scope = scope,
+                    category = selectedCategory
                 )
 
             },
@@ -554,15 +612,65 @@ fun SelectInput(
             options.forEach { option ->
                 DropdownMenuItem(
                     onClick = {
-                        option.latLng?.let {
-                            locationViewModel.updateLocation(it)
-                        }
+                        locationViewModel.updateLocation(option)
+
                         textFieldValue = TextFieldValue(option.name ?: "")
                         onOptionSelected(option.name?: "")
                         expanded = false // Close dropdown on selection
                     },
                     text = {
                         Text(option.name?: "")
+                    }
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+fun SelectCategory(
+    options: List<String>,
+    selectedOption: String,
+    onOptionSelected: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) } // State to control dropdown visibility
+    var textFieldValue by remember { mutableStateOf(TextFieldValue(selectedOption)) }
+
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        OutlinedTextField(
+            value = textFieldValue,
+            onValueChange = { textFieldValue = it },
+            modifier = Modifier
+                .clickable { expanded = true }, // Open dropdown on click
+            label = { Text("Select category") },
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "Dropdown Arrow",
+                    modifier = Modifier.clickable { expanded = !expanded }
+                )
+            },
+            readOnly = true // Prevent manual input
+        )
+        DropdownMenu(
+            modifier = Modifier.height(300.dp),
+            expanded = expanded,
+            onDismissRequest = { expanded = false } // Close dropdown when clicked outside
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    onClick = {
+
+                        textFieldValue = TextFieldValue(option)
+                        onOptionSelected(option)
+                        expanded = false // Close dropdown on selection
+                    },
+                    text = {
+                        Text(option)
                     }
                 )
             }
