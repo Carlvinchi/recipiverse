@@ -26,6 +26,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import s3154679.tees.ac.uk.recipiverse.onboarding.OnboardingDisplayManager
 import s3154679.tees.ac.uk.recipiverse.screens.CreatePostScreen
 import s3154679.tees.ac.uk.recipiverse.screens.EditPostScreen
@@ -69,7 +70,7 @@ fun AppNavigation(
 
     Scaffold(
         modifier = Modifier.fillMaxSize().padding(top = 20.dp),
-        topBar = {},
+
         bottomBar = {
             if(authState.value == AuthState.Authenticated){
                 NavigationBar {
@@ -148,7 +149,23 @@ fun AppNavigation(
             }
 
             composable<PostDetailsScreen> {
-                PostDetailsScreen(modifier, navController, authViewModel)
+                val args = it.toRoute<PostDetailsScreen>()
+
+                PostDetailsScreen(
+                    modifier,
+                    navController,
+                    authViewModel,
+                    args.postId,
+                    args.postTitle,
+                    args.postDescription,
+                    args.postImage,
+                    args.postVideo,
+                    args.postLocLat,
+                    args.postLocLng,
+                    args.postDate,
+                    args.userName,
+                    args.userLocName
+                )
             }
 
             composable<EditPostScreen> {

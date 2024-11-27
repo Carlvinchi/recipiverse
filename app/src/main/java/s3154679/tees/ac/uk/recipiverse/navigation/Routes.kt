@@ -27,7 +27,18 @@ object CreatePostScreen
 object UserPostsScreen
 
 @Serializable
-object PostDetailsScreen
+data class  PostDetailsScreen(
+    val postId: String,
+    val postTitle: String,
+    val postDescription: String,
+    val postImage: String,
+    val postVideo: String,
+    val postLocLat: Double,
+    val postLocLng: Double,
+    val postDate: String,
+    val userName: String,
+    val userLocName: String,
+)
 
 @Serializable
 object EditPostScreen
