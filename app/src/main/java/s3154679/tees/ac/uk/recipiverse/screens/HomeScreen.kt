@@ -52,32 +52,22 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import s3154679.tees.ac.uk.recipiverse.navigation.PostDetailsScreen
-import s3154679.tees.ac.uk.recipiverse.viewmodels.AuthViewModel
 import s3154679.tees.ac.uk.recipiverse.viewmodels.CameraViewModel
-import s3154679.tees.ac.uk.recipiverse.viewmodels.Loader
-import s3154679.tees.ac.uk.recipiverse.viewmodels.LocationViewModel
 import s3154679.tees.ac.uk.recipiverse.viewmodels.Post
 import s3154679.tees.ac.uk.recipiverse.viewmodels.UploadState
 
 @Composable
 fun HomeScreen(
-    modifier: Modifier,
     navController: NavHostController,
-    authViewModel: AuthViewModel,
-    cameraViewModel: CameraViewModel,
-    locationViewModel: LocationViewModel
-
+    cameraViewModel: CameraViewModel
 ) {
-    //observe auth state and loader state from viewmodel
-    val authState = authViewModel.authState.observeAsState()
-    val userState = authViewModel.user.observeAsState()
-    val loaderState = authViewModel.loaderState.observeAsState()
+
+    //observe states from viewmodel
     val uploadState = cameraViewModel.uploadState.observeAsState()
     val postList = cameraViewModel.postList.observeAsState()
 
-    authViewModel.getUserFromFirestore()
 
-    //navigate to login page if unauthenticated
+    //fetch posts when app is launched
     LaunchedEffect(Unit) {
         cameraViewModel.fetchPosts()
     }
@@ -85,9 +75,12 @@ fun HomeScreen(
     Scaffold(
         topBar = {
 
+            //for displaying search bar
             MyTopBar(cameraViewModel)
-        }
+        },
+        containerColor = Color.White
     ) { innerPadding ->
+
         Column(
             modifier = Modifier.padding(innerPadding)
                 .fillMaxSize()
@@ -96,8 +89,8 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
+            //for displaying categories
             Categories(cameraViewModel)
-
 
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -120,16 +113,11 @@ fun HomeScreen(
                 }
             }
 
-
-            // show progress when state is loading
-            if(loaderState.value == Loader.Loading){
-                CircularProgressIndicator()
-            }
-
         }
     }
 }
 
+//compose item for each post
 @Composable
 fun PostItem(post: Post, navController: NavHostController) {
     Card(
@@ -139,7 +127,7 @@ fun PostItem(post: Post, navController: NavHostController) {
         shape = RoundedCornerShape(16.dp),
 
         onClick = {
-            // Handle item click
+            //navigate to post details screen when post is clicked
             navController.navigate(
                 PostDetailsScreen(
                     post.id,
@@ -162,7 +150,6 @@ fun PostItem(post: Post, navController: NavHostController) {
         ) {
 
             if(post.image != ""){
-
                 AsyncImage(
                     model = post.image,
                     contentDescription = "Feature Image",
@@ -248,6 +235,7 @@ fun MyTopBar(cameraViewModel: CameraViewModel) {
 
 }
 
+//compose item for each category, and add a button for each category to fetch posts by category
 @Composable
 fun Categories(cameraViewModel: CameraViewModel) {
 
@@ -263,6 +251,7 @@ fun Categories(cameraViewModel: CameraViewModel) {
         horizontalScroll(rememberScrollState()),
         verticalAlignment = Alignment.CenterVertically
     ) {
+
 
         categoriesList.forEach{category ->
             Button(
@@ -282,6 +271,5 @@ fun Categories(cameraViewModel: CameraViewModel) {
 
         }
     }
-
 
 }

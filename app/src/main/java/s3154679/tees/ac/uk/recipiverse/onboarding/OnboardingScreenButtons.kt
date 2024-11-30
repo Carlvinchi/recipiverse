@@ -12,6 +12,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+//This code is used to display the onboarding screen buttons
+
 @Composable
 fun OnboardingScreenButtons(
     text: String = "Next",
@@ -37,14 +39,14 @@ fun OnboardingScreenButtons(
     }
 }
 
-@Preview()
+@Preview
 @Composable
 fun NextButton() {
 
     OnboardingScreenButtons{}
 }
 
-@Preview()
+@Preview
 @Composable
 fun BackButton() {
     OnboardingScreenButtons(

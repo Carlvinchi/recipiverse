@@ -29,7 +29,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import s3154679.tees.ac.uk.recipiverse.onboarding.OnboardingDisplayManager
 import s3154679.tees.ac.uk.recipiverse.screens.CreatePostScreen
-import s3154679.tees.ac.uk.recipiverse.screens.EditPostScreen
 import s3154679.tees.ac.uk.recipiverse.screens.HomeScreen
 import s3154679.tees.ac.uk.recipiverse.screens.LoginScreen
 import s3154679.tees.ac.uk.recipiverse.screens.OnboardingScreen
@@ -50,12 +49,14 @@ fun AppNavigation(
     cameraViewModel: CameraViewModel,
     locationViewModel: LocationViewModel
 ) {
+    //Observe auth state from viewmodel
     val authState = authViewModel.authState.observeAsState()
-    //val userState = authViewModel.user.observeAsState()
-    val context = LocalContext.current
 
+
+    val context = LocalContext.current
     val navController = rememberNavController()
 
+    //items in bottom navigation bar
     val navBottomItems = listOf(
         BottomNavigationItems("Home", Icons.Default.Home),
         BottomNavigationItems("Create Post", Icons.Default.Add),
@@ -64,13 +65,12 @@ fun AppNavigation(
         BottomNavigationItems("Logout", Icons.AutoMirrored.Filled.ExitToApp)
     )
 
+    //to help determine which bottom navigation item has been selected
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
-
 
 
     Scaffold(
         modifier = Modifier.fillMaxSize().padding(top = 20.dp),
-
         bottomBar = {
             if(authState.value == AuthState.Authenticated){
                 NavigationBar {
@@ -83,7 +83,6 @@ fun AppNavigation(
                                     0 -> {
                                         navController.navigate(HomeScreen){
                                            popUpTo(navController.graph.findStartDestination().id){inclusive = true}
-
                                         }
                                     }
                                     1 -> navController.navigate(CreatePostScreen)
@@ -115,16 +114,18 @@ fun AppNavigation(
             startDestination = if (OnboardingDisplayManager(context).isOnboardingFinished()) LoginScreen else OnboardingScreen
         ){
 
+            //set all the navigation routes in the app
+
             composable<LoginScreen> {
-                LoginScreen(modifier, navController, authViewModel)
+                LoginScreen(navController, authViewModel)
             }
 
             composable<SignupScreen> {
-                SignUpScreen(modifier, navController, authViewModel)
+                SignUpScreen(navController, authViewModel)
             }
 
             composable<HomeScreen> {
-                HomeScreen(modifier, navController, authViewModel, cameraViewModel, locationViewModel)
+                HomeScreen(navController, cameraViewModel)
             }
 
             composable<TermsScreen> {
@@ -136,23 +137,24 @@ fun AppNavigation(
             }
 
             composable<ProfileScreen> {
-                ProfileScreen(modifier, navController, authViewModel, cameraViewModel)
+                ProfileScreen(navController, authViewModel, cameraViewModel)
 
             }
 
             composable<CreatePostScreen> {
-                CreatePostScreen(modifier, navController, authViewModel, locationViewModel, cameraViewModel)
+                CreatePostScreen(navController, authViewModel, locationViewModel, cameraViewModel)
             }
 
             composable<UserPostsScreen> {
-                UserPostsScreen(modifier, navController, authViewModel)
+                UserPostsScreen(navController, authViewModel, cameraViewModel)
             }
 
             composable<PostDetailsScreen> {
+
+                //this will help retrieve parameters passed to the screen
                 val args = it.toRoute<PostDetailsScreen>()
 
                 PostDetailsScreen(
-                    modifier,
                     navController,
                     authViewModel,
                     args.postId,
@@ -166,10 +168,6 @@ fun AppNavigation(
                     args.userName,
                     args.userLocName
                 )
-            }
-
-            composable<EditPostScreen> {
-                EditPostScreen(modifier, navController, authViewModel)
             }
 
         }

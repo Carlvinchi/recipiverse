@@ -2,9 +2,7 @@ package s3154679.tees.ac.uk.recipiverse.screens
 
 import android.content.Context
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +17,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -57,7 +56,6 @@ import s3154679.tees.ac.uk.recipiverse.viewmodels.AuthViewModel
 
 @Composable
 fun PostDetailsScreen(
-    modifier: Modifier,
     navController: NavHostController,
     authViewModel: AuthViewModel,
     postId: String,
@@ -72,9 +70,10 @@ fun PostDetailsScreen(
     userLocName: String
 
 ) {
-    //we observe the authentication and load state
+
+    //we observe the authentication
     val authState = authViewModel.authState.observeAsState()
-    val loaderState = authViewModel.loaderState.observeAsState()
+
 
     //navigate to login page if unauthenticated
     LaunchedEffect(authState.value) {
@@ -86,33 +85,49 @@ fun PostDetailsScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Scaffold(
 
-        Text(text = "Post Details Page", fontSize = 32.sp)
+        topBar = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Post Details", fontSize = 32.sp
+                )
+            }
 
-        Spacer(modifier = Modifier.height(15.dp))
+        },
+        containerColor = Color.White,
+    ) { innerPadding ->
 
-        Item(
-            postId,
-            postTitle,
-            postDescription,
-            postImage,
-            postVideo,
-            postLocLat,
-            postLocLng,
-            postDate,
-            userName,
-            userLocName
-        )
+        Column(
+            modifier = Modifier.padding(innerPadding)
+                .fillMaxSize()
+                .background(Color.White),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
+            //display post details
+            Item(
+                postId,
+                postTitle,
+                postDescription,
+                postImage,
+                postVideo,
+                postLocLat,
+                postLocLng,
+                postDate,
+                userName,
+                userLocName
+            )
+
+
+        }
 
     }
+
 }
 
 
@@ -144,69 +159,55 @@ fun Item(
 
         Text(
             text = postTitle,
-            fontSize = 20.sp,
+            fontSize = 25.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Start,
             modifier = Modifier.padding(bottom = 10.dp)
 
         )
 
+        //display image if available
         if(postImage != ""){
 
-            Box(
-                modifier = Modifier
-                    .size(350.dp)
-                    .border(width = 2.dp, color = Color.White, shape = RectangleShape)
-                    .background(Color.Gray, shape = RectangleShape),
-            )
-            {
-                AsyncImage(
-                    model = postImage,
-                    contentDescription = "Feature Image",
-                    modifier = Modifier
-                        .size(350.dp)
-                        .clip(shape = RectangleShape),
-                    contentScale = ContentScale.Crop
-                )
+            Card(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 5.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                shape = RoundedCornerShape(16.dp),
 
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(5.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    AsyncImage(
+                        model = postImage,
+                        contentDescription = "Feature Image",
+                        modifier = Modifier
+                            .size(350.dp)
+                            .clip(shape = RectangleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(10.dp))
         }
 
 
         Text(
             text = postDescription,
             fontSize = 16.sp,
-            fontWeight = FontWeight.Normal,
+            fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Start,
-            modifier = Modifier.padding(bottom = 10.dp)
+            modifier = Modifier.padding(bottom = 15.dp)
 
         )
 
-
+        //display video if available
         if(postVideo != ""){
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                shape = RoundedCornerShape(16.dp),
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(5.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ){
-
-                    Player(context = LocalContext.current, videoUri = postVideo)
-
-                }
-
-            }
-
-
+            Player(context = LocalContext.current, videoUri = postVideo)
 
             Spacer(modifier = Modifier.height(18.dp))
         }
@@ -228,6 +229,8 @@ fun Item(
         )
 
 
+
+        //display map if location is available
         if(showMap){
             DisplayMap(location = LatLng(postLocLat, postLocLng))
         }
@@ -238,12 +241,12 @@ fun Item(
             Text(
                 text = "Posted From: $userLocName",
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(bottom = 10.dp),
+                modifier = Modifier.padding(bottom = 5.dp),
                 textAlign = TextAlign.Start
             )
 
             TextButton(
-                modifier = Modifier.padding(top = 10.dp),
+                modifier = Modifier.padding(top = 5.dp),
                 onClick = {
                     showMap = !showMap
                 },
@@ -266,7 +269,6 @@ fun Item(
 
 @Composable
 fun Player(
-    modifier: Modifier = Modifier,
     context: Context,
     videoUri: String?
 ) {
@@ -290,15 +292,32 @@ fun Player(
         }
     }
 
-    AndroidView(
-        factory = { ctx ->
-            PlayerView(ctx).apply {
-                player = exoPlayer
-            }
-        },
-        modifier = Modifier
-            .size(350.dp)// Set your desired height
-    )
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(16.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(5.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){
+            AndroidView(
+                factory = { ctx ->
+                    PlayerView(ctx).apply {
+                        player = exoPlayer
+                    }
+                },
+                modifier = Modifier
+                    .size(350.dp)
+            )
+
+        }
+
+    }
+
 }
 
 @Composable

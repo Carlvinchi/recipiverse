@@ -51,10 +51,11 @@ import s3154679.tees.ac.uk.recipiverse.viewmodels.Loader
 
 @Composable
 fun LoginScreen(
-    modifier: Modifier,
     navController: NavHostController,
     authViewModel: AuthViewModel
 ) {
+
+    //login form variables
 
     var email by remember {
         mutableStateOf("")
@@ -72,13 +73,14 @@ fun LoginScreen(
         mutableStateOf(false)
     }
 
-    //we observe the authentication and load state
+    //observe the authentication and load state
     val authState = authViewModel.authState.observeAsState()
     val loaderState = authViewModel.loaderState.observeAsState()
 
-
+    //context and scope variables
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+
 
     //ensures we navigate to home page when authenticated
     LaunchedEffect(authState.value) {
@@ -189,6 +191,7 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        //login button
         Button(
             onClick = {
                 authViewModel.login(email, password, scope)
@@ -218,6 +221,8 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(15.dp))
 
+
+        //google sign in button
         Image(
             painter = painterResource(id = R.drawable.google),
             contentDescription = "Google Icon",
@@ -232,6 +237,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(10.dp))
 
 
+        //navigate to sign up screen when clicked
         Row {
             Text(text = "Don't have an account? ")
             Text(

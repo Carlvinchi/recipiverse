@@ -21,6 +21,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+
+//This code is used to display the onboarding pages
+
 @Composable
 fun OnboardingPages(onboardingContentModel: OnboardingContentModel) {
     Column(

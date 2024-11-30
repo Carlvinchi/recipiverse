@@ -59,11 +59,11 @@ import s3154679.tees.ac.uk.recipiverse.viewmodels.Loader
 
 @Composable
 fun SignUpScreen(
-    modifier: Modifier,
     navController: NavHostController,
     authViewModel: AuthViewModel
 ) {
 
+    //variables for text fields and signup form
     var name by remember {
         mutableStateOf("")
     }
@@ -99,6 +99,7 @@ fun SignUpScreen(
 
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+
     //the code below ensures we navigate to homepage after account creation
     LaunchedEffect(authState.value) {
         when(authState.value) {
@@ -191,7 +192,6 @@ fun SignUpScreen(
             }
         )
 
-
         OutlinedTextField(
             value = password,
             onValueChange = {
@@ -227,7 +227,7 @@ fun SignUpScreen(
                 onCheckedChange = {isChecked = it}
             )
 
-            //terms Text
+            //terms and conditions Text
             val termsText = buildAnnotatedString {
                 append("I agree to the ")
                 pushStringAnnotation(tag = "TERMS", annotation = "terms")
@@ -254,6 +254,7 @@ fun SignUpScreen(
             )
         }
 
+        //Sign up button
         Button(
             onClick = {
                 authViewModel.signup(email, password, name, scope)
@@ -284,6 +285,7 @@ fun SignUpScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
+        //google sign in button
         Image(
             painter = painterResource(id = R.drawable.google),
             contentDescription = "Google Icon",
@@ -298,6 +300,7 @@ fun SignUpScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
 
+        //navigate to login page
         Row {
             Text(text = "Already have an account? ")
             Text(

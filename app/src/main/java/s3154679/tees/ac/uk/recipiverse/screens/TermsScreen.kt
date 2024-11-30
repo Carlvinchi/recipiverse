@@ -27,6 +27,9 @@ import androidx.navigation.NavHostController
 import s3154679.tees.ac.uk.recipiverse.R
 import s3154679.tees.ac.uk.recipiverse.navigation.SignupScreen
 
+
+//for displaying terms and conditions text
+
 @Composable
 fun TermsScreen(navController: NavHostController) {
     Column(

@@ -22,9 +22,9 @@ import java.util.UUID
 class AuthViewModel : ViewModel() {
 
     //firebase variables
-    val auth: FirebaseAuth = FirebaseAuth.getInstance()
-    val firestore = Firebase.firestore
-    val usersCollection = "users"
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val firestore = Firebase.firestore
+    private val usersCollection = "users"
 
 
     //variables for authentication states
@@ -54,6 +54,7 @@ class AuthViewModel : ViewModel() {
             _authState.value = AuthState.Unauthenticated
         }else{
             _authState.value = AuthState.Authenticated
+            getUserFromFirestore()
 
         }
     }
@@ -146,6 +147,7 @@ class AuthViewModel : ViewModel() {
 
     }
 
+
     //create nonce for google signin
     private fun createNonce(): String {
         val rawNonce = UUID.randomUUID().toString()
@@ -205,7 +207,6 @@ class AuthViewModel : ViewModel() {
                             getUserFromFirestore()
                         }
 
-                        //getUserFromFirestore()
 
                         //update loader state and authentication state
                         _loaderState.value = Loader.StopLoading
@@ -246,7 +247,7 @@ class AuthViewModel : ViewModel() {
 
 
     //for adding user details to firestore
-    fun addUserToFirestore(
+    private fun addUserToFirestore(
         name: String,
         email: String,
         userId: String
@@ -281,7 +282,7 @@ class AuthViewModel : ViewModel() {
 
 
     //for fetching user details from firestore
-    fun getUserFromFirestore() {
+    private fun getUserFromFirestore() {
 
         val userId = auth.currentUser?.uid
 
@@ -353,10 +354,10 @@ class AuthViewModel : ViewModel() {
                 "no email"
             )
 
+            _authState.value = AuthState.Error(e.message?:"Something went wrong when updating user")
             _loaderState.value = Loader.StopLoading
         }
     }
-
 
 
     //for deleting user details in firestore
@@ -372,6 +373,8 @@ class AuthViewModel : ViewModel() {
                     .addOnSuccessListener {
 
                         _loaderState.value = Loader.StopLoading
+                        _authState.value = AuthState.Unauthenticated
+
                     }
                     .addOnFailureListener {
 

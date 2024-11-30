@@ -3,7 +3,6 @@ package s3154679.tees.ac.uk.recipiverse.viewmodels
 import android.content.Context
 import android.net.Uri
 import android.os.Environment
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.FileProvider
 import androidx.lifecycle.LiveData
@@ -31,36 +30,27 @@ class CameraViewModel: ViewModel() {
     val uploadState: LiveData<UploadState> = _uploadState
 
 
-    //variables for setting loader states
-    private val _loaderState = MutableLiveData<Loader>()
-    val loaderState: LiveData<Loader> = _loaderState
-
-
     // get storage reference for firebase
-    var imageStorageRef : StorageReference = FirebaseStorage.getInstance().reference.child("images")
-    var videoStorageRef : StorageReference = FirebaseStorage.getInstance().reference.child("videos")
-    val firestore = FirebaseFirestore.getInstance()
+    private var imageStorageRef : StorageReference = FirebaseStorage.getInstance().reference.child("images")
+    private var videoStorageRef : StorageReference = FirebaseStorage.getInstance().reference.child("videos")
+    private val firestore = FirebaseFirestore.getInstance()
+    private val batch = firestore.batch()
 
 
     //get details required to update user profile image
-    val auth: FirebaseAuth = FirebaseAuth.getInstance()
-    val usersCollection = "users"
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val usersCollection = "users"
 
     //get details required to create post
-    val postsCollection = "posts"
+    private val postsCollection = "posts"
 
+    //post list
     private val _post = MutableLiveData<List<Post>>()
     val postList: LiveData<List<Post>> = _post
 
-    //post media va
+    //post media url variables
     private val _postVideoUrl = mutableStateOf("")
-    val postVideoUrl = _postVideoUrl
-
-
     private val _postImageUrl = mutableStateOf("")
-    val postImageUrl = _postImageUrl
-
-
 
 
     // State variables for video and image files and URIs
@@ -81,14 +71,6 @@ class CameraViewModel: ViewModel() {
     }
 
 
-    private val _videoUriState = mutableStateOf("")
-    val videoUriState = _videoUriState
-
-
-    private val _imageUriState = mutableStateOf("")
-    val imageUriState = _imageUriState
-
-
     // State variables for profile image files and URL
     private val _profileImageUri = MutableStateFlow<Uri?>(null)
     val profileImageUri: MutableStateFlow<Uri?> = _profileImageUri
@@ -99,9 +81,6 @@ class CameraViewModel: ViewModel() {
         //upload image to firebase storage
         uploadProfileImage(uri)
     }
-
-    private val _profileImageUrlState = mutableStateOf("")
-    val profileImageUrlState = _profileImageUrlState
 
 
     //Function to create a temporary image file
@@ -143,22 +122,17 @@ class CameraViewModel: ViewModel() {
 
 
     //Function to upload profile image to firebase storage
-    fun uploadProfileImage(uri: Uri) {
+    private fun uploadProfileImage(uri: Uri) {
 
         _uploadState.value = UploadState.Loading
-        _loaderState.value = Loader.Loading
-
-        Log.i("Image URI", uri.toString())
 
         try {
 
             imageStorageRef = imageStorageRef.child(System.currentTimeMillis().toString())
             imageStorageRef.putFile(uri)
                 .addOnSuccessListener {
-                    Log.i("Image", "Image uploaded successfully")
-                    imageStorageRef.downloadUrl.addOnSuccessListener {
 
-                        _profileImageUrlState.value = it.toString()
+                    imageStorageRef.downloadUrl.addOnSuccessListener {
 
                         //save the url to user collection in firestore
                         updateUserProfileImage(it.toString())
@@ -166,25 +140,20 @@ class CameraViewModel: ViewModel() {
                 }
                 .addOnFailureListener {
 
-                    Log.i("Image URI", "Image failed to upload")
-
-                    _loaderState.value = Loader.StopLoading
                     _uploadState.value = UploadState.Error("Image Upload Failed")
 
                 }
 
         }catch (e: Exception){
 
-            _loaderState.value = Loader.StopLoading
-            _uploadState.value = UploadState.Error("Image Upload Failed")
+            _uploadState.value = UploadState.Error(e.message.toString())
         }
-
 
     }
 
 
     //for updating user profile image in the user collection at firestore database
-    fun updateUserProfileImage(profileImageUrl: String) {
+    private fun updateUserProfileImage(profileImageUrl: String) {
 
         val userId = auth.currentUser?.uid
 
@@ -192,19 +161,16 @@ class CameraViewModel: ViewModel() {
             firestore.collection(usersCollection).document(userId!!).update("profileImageUrl", profileImageUrl)
                 .addOnSuccessListener {
 
-                    _loaderState.value = Loader.StopLoading
+
                     _uploadState.value = UploadState.StopLoading
                 }
                 .addOnFailureListener {
 
-                    _loaderState.value = Loader.StopLoading
                     _uploadState.value = UploadState.Error("User profile image update failed")
                 }
         }catch (e: Exception){
 
-            Log.i("Image Failed", e.message.toString())
-            _loaderState.value = Loader.StopLoading
-            _uploadState.value = UploadState.Error("User profile image update failed")
+            _uploadState.value = UploadState.Error(e.message.toString())
         }
     }
 
@@ -212,6 +178,10 @@ class CameraViewModel: ViewModel() {
     //Function to add post to firestore database
     fun addPost(title: String, description: String, image: Uri, video: Uri, userName: String, locName: String, latLng: LatLng, category: String, scope: CoroutineScope){
 
+        if(title.isEmpty() || description.isEmpty() || image == Uri.EMPTY || video == Uri.EMPTY || category.isEmpty()){
+            _uploadState.value = UploadState.Error("Please title, category, description, image and video fields cannot be empty")
+            return
+        }
         _uploadState.value = UploadState.Loading
 
         //uploadPostImage(image)
@@ -226,7 +196,7 @@ class CameraViewModel: ViewModel() {
                 imageStorageRef = imageStorageRef.child(System.currentTimeMillis().toString())
                 imageStorageRef.putFile(image)
                     .addOnSuccessListener {
-                        Log.i("Post", "Image uploaded successfully")
+
                         imageStorageRef.downloadUrl.addOnSuccessListener {
 
                             _postImageUrl.value = it.toString()
@@ -234,7 +204,7 @@ class CameraViewModel: ViewModel() {
                             videoStorageRef = videoStorageRef.child(System.currentTimeMillis().toString())
                             videoStorageRef.putFile(video)
                                 .addOnSuccessListener {
-                                    Log.i("Post", "Video uploaded successfully")
+
                                     videoStorageRef.downloadUrl.addOnSuccessListener { url ->
 
                                         _postVideoUrl.value = url.toString()
@@ -258,7 +228,6 @@ class CameraViewModel: ViewModel() {
                                         firestore.collection(postsCollection).add(postObject)
                                             .addOnSuccessListener {
 
-                                                Log.i("Post", "Post created successfully")
                                                 _uploadState.value = UploadState.Uploaded("Post created successfully")
 
                                             }
@@ -295,36 +264,43 @@ class CameraViewModel: ViewModel() {
 
         _uploadState.value = UploadState.Loading
 
-        firestore.collection(postsCollection)
-            .get()
-            .addOnSuccessListener {
-                Log.i("Posts", "Posts fetched successfully")
+        try {
 
-                val posts =  it.documents.map { document ->
-                    Post(
-                        id = document.id,
-                        title = document.getString("title") ?: "",
-                        description = document.getString("description") ?: "",
-                        image = document.getString("image") ?: "",
-                        video = document.getString("video") ?: "",
-                        userLocationName = document.getString("userLocationName") ?: "",
-                        userDisplayName = document.getString("userDisplayName") ?: "",
-                        userLocation = document.getGeoPoint("userLocation")?.let { geoPoint ->
-                            LatLng(geoPoint.latitude, geoPoint.longitude)
-                        },
-                        dateCreated = document.getTimestamp("dateCreated")?.toDate().toString() ?: Date().toString(),
-                        category = document.getString("category") ?: ""
-                    )
+            firestore.collection(postsCollection)
+                .get()
+                .addOnSuccessListener {
+
+                    val posts =  it.documents.map { document ->
+                        Post(
+                            id = document.id,
+                            title = document.getString("title") ?: "",
+                            description = document.getString("description") ?: "",
+                            image = document.getString("image") ?: "",
+                            video = document.getString("video") ?: "",
+                            userLocationName = document.getString("userLocationName") ?: "",
+                            userDisplayName = document.getString("userDisplayName") ?: "",
+                            userLocation = document.getGeoPoint("userLocation")?.let { geoPoint ->
+                                LatLng(geoPoint.latitude, geoPoint.longitude)
+                            },
+                            dateCreated = document.getTimestamp("dateCreated")?.toDate().toString(),
+                            category = document.getString("category") ?: ""
+                        )
+                    }
+
+                    _post.value = posts
+
+                    _uploadState.value = UploadState.StopLoading
+                }
+                .addOnFailureListener{
+
+                    _uploadState.value = UploadState.Error("Posts fetched failed")
                 }
 
-                _post.value = posts
+        }catch (e: Exception){
 
-                _uploadState.value = UploadState.StopLoading
-            }
-            .addOnFailureListener{
-                Log.i("Posts", "Posts fetched failed")
-                _uploadState.value = UploadState.Error("Posts fetched failed")
-            }
+            _uploadState.value = UploadState.Error(e.message.toString())
+        }
+
     }
 
 
@@ -333,80 +309,202 @@ class CameraViewModel: ViewModel() {
 
         _uploadState.value = UploadState.Loading
 
-        firestore.collection(postsCollection).whereEqualTo("category", category)
-            .get()
-            .addOnSuccessListener {
-                Log.i("Posts", "Posts fetched successfully")
+        try {
 
-                val posts =  it.documents.map { document ->
-                    Post(
-                        id = document.id,
-                        title = document.getString("title") ?: "",
-                        description = document.getString("description") ?: "",
-                        image = document.getString("image") ?: "",
-                        video = document.getString("video") ?: "",
-                        userLocationName = document.getString("userLocationName") ?: "",
-                        userDisplayName = document.getString("userDisplayName") ?: "",
-                        userLocation = document.getGeoPoint("userLocation")?.let { geoPoint ->
-                            LatLng(geoPoint.latitude, geoPoint.longitude)
-                        },
-                        dateCreated = document.getTimestamp("dateCreated")?.toDate().toString() ?: Date().toString(),
-                        category = document.getString("category") ?: ""
-                    )
+            firestore.collection(postsCollection).whereEqualTo("category", category)
+                .get()
+                .addOnSuccessListener {
+
+                    val posts =  it.documents.map { document ->
+                        Post(
+                            id = document.id,
+                            title = document.getString("title") ?: "",
+                            description = document.getString("description") ?: "",
+                            image = document.getString("image") ?: "",
+                            video = document.getString("video") ?: "",
+                            userLocationName = document.getString("userLocationName") ?: "",
+                            userDisplayName = document.getString("userDisplayName") ?: "",
+                            userLocation = document.getGeoPoint("userLocation")?.let { geoPoint ->
+                                LatLng(geoPoint.latitude, geoPoint.longitude)
+                            },
+                            dateCreated = document.getTimestamp("dateCreated")?.toDate().toString(),
+                            category = document.getString("category") ?: ""
+                        )
+                    }
+
+                    _post.value = posts
+
+                    _uploadState.value = UploadState.StopLoading
+                }
+                .addOnFailureListener{
+
+                    _uploadState.value = UploadState.Error("Posts fetched failed")
                 }
 
-                _post.value = posts
+        }catch (e: Exception){
+            _uploadState.value = UploadState.Error(e.message.toString())
+        }
 
-                _uploadState.value = UploadState.StopLoading
-            }
-            .addOnFailureListener{
-                Log.i("Posts", "Posts fetched failed")
-                _uploadState.value = UploadState.Error("Posts fetched failed")
-            }
+
     }
 
-    //function to fetch posts by category from firestore database
-    fun fetchPostsBySearch(sententce: String) {
+    //function to fetch posts by search term from firestore database
+    fun fetchPostsBySearch(sentence: String) {
+        if(sentence.isEmpty()){
+            _uploadState.value = UploadState.Error("Please enter a search term")
+        }
 
         _uploadState.value = UploadState.Loading
 
-        val searchKeywords = sententce.lowercase().split(" ")
+        val searchKeywords = sentence.lowercase().split(" ")
 
-        firestore.collection(postsCollection)
-            .get()
-            .addOnSuccessListener {snapshot ->
+        try {
 
+            firestore.collection(postsCollection)
+                .get()
+                .addOnSuccessListener {snapshot ->
 
-                val documents = snapshot.documents.filter { document ->
-                    val keywords = document.get("keywords") as List<String>
-                    keywords.any { searchKeywords.contains(it) }
+                    val documents = snapshot.documents.filter { document ->
+                        val keywords = document.get("keywords") as List<String>
+                        keywords.any { searchKeywords.contains(it) }
+                    }
+
+                    val posts =  documents.map { document ->
+                        Post(
+                            id = document.id,
+                            title = document.getString("title") ?: "",
+                            description = document.getString("description") ?: "",
+                            image = document.getString("image") ?: "",
+                            video = document.getString("video") ?: "",
+                            userLocationName = document.getString("userLocationName") ?: "",
+                            userDisplayName = document.getString("userDisplayName") ?: "",
+                            userLocation = document.getGeoPoint("userLocation")?.let { geoPoint ->
+                                LatLng(geoPoint.latitude, geoPoint.longitude)
+                            },
+                            dateCreated = document.getTimestamp("dateCreated")?.toDate().toString(),
+                            category = document.getString("category") ?: ""
+                        )
+                    }
+
+                    _post.value = posts
+
+                    _uploadState.value = UploadState.StopLoading
+                }
+                .addOnFailureListener{
+
+                    _uploadState.value = UploadState.Error("Posts fetched failed")
                 }
 
-                val posts =  documents.map { document ->
-                    Post(
-                        id = document.id,
-                        title = document.getString("title") ?: "",
-                        description = document.getString("description") ?: "",
-                        image = document.getString("image") ?: "",
-                        video = document.getString("video") ?: "",
-                        userLocationName = document.getString("userLocationName") ?: "",
-                        userDisplayName = document.getString("userDisplayName") ?: "",
-                        userLocation = document.getGeoPoint("userLocation")?.let { geoPoint ->
-                            LatLng(geoPoint.latitude, geoPoint.longitude)
-                        },
-                        dateCreated = document.getTimestamp("dateCreated")?.toDate().toString() ?: Date().toString(),
-                        category = document.getString("category") ?: ""
-                    )
+        }catch (e: Exception){
+            _uploadState.value = UploadState.Error(e.message.toString())
+        }
+
+    }
+
+    //function to fetch posts by userId from firestore database
+    fun fetchPostsByUserId() {
+
+        val userId = auth.currentUser?.uid
+
+        _uploadState.value = UploadState.Loading
+
+        try {
+
+            firestore.collection(postsCollection).whereEqualTo("userId", userId)
+                .get()
+                .addOnSuccessListener {
+
+
+                    val posts =  it.documents.map { document ->
+                        Post(
+                            id = document.id,
+                            title = document.getString("title") ?: "",
+                            description = document.getString("description") ?: "",
+                            image = document.getString("image") ?: "",
+                            video = document.getString("video") ?: "",
+                            userLocationName = document.getString("userLocationName") ?: "",
+                            userDisplayName = document.getString("userDisplayName") ?: "",
+                            userLocation = document.getGeoPoint("userLocation")?.let { geoPoint ->
+                                LatLng(geoPoint.latitude, geoPoint.longitude)
+                            },
+                            dateCreated = document.getTimestamp("dateCreated")?.toDate().toString(),
+                            category = document.getString("category") ?: ""
+                        )
+                    }
+
+                    _post.value = posts
+
+                    _uploadState.value = UploadState.StopLoading
+                }
+                .addOnFailureListener{
+
+                    _uploadState.value = UploadState.Error("Posts fetched failed")
                 }
 
-                _post.value = posts
+        }catch (e: Exception){
+            _uploadState.value = UploadState.Error(e.message.toString())
+        }
 
-                _uploadState.value = UploadState.StopLoading
+
+    }
+
+    //function to delete posts by Id from firestore database
+    fun deletePostById(postId: String, scope: CoroutineScope) {
+
+        _uploadState.value = UploadState.Loading
+
+        scope.launch {
+
+            try {
+                firestore.collection(postsCollection).document(postId).delete()
+                    .addOnSuccessListener {
+
+
+                        _uploadState.value = UploadState.Uploaded("Post deleted successfully")
+                    }
+                    .addOnFailureListener{
+                        _uploadState.value = UploadState.Error("Posts delete failed")
+                    }
+
+            }catch (e: Exception){
+                _uploadState.value = UploadState.Error(e.message.toString())
             }
-            .addOnFailureListener{
-                Log.i("Posts", "Posts fetched failed")
-                _uploadState.value = UploadState.Error("Posts fetched failed")
+        }
+    }
+
+    //function to delete posts by userId from firestore database
+    fun deletePostsByUserId(scope: CoroutineScope) {
+
+        val userId = auth.currentUser?.uid
+
+        _uploadState.value = UploadState.Loading
+
+        scope.launch {
+            try {
+
+                firestore.collection(postsCollection).whereEqualTo("userId", userId)
+                    .get()
+                    .addOnSuccessListener { snapshot ->
+
+                        for (document in snapshot.documents) {
+                            batch.delete(document.reference)
+                        }
+
+                        batch.commit()
+
+                        _uploadState.value = UploadState.StopLoading
+                    }
+                    .addOnFailureListener{
+
+                        _uploadState.value = UploadState.Error("Posts delete failed")
+                    }
+
+            }catch (e: Exception){
+                _uploadState.value = UploadState.Error(e.message.toString())
             }
+
+        }
+
     }
 
 
@@ -417,8 +515,6 @@ class CameraViewModel: ViewModel() {
 sealed class UploadState {
     data class  Uploaded(val message: String): UploadState()
     object Loading: UploadState()
-    object DownloadedImage: UploadState()
-    object DownloadedVideo: UploadState()
     object StopLoading: UploadState()
     data class Error(val message: String): UploadState()
 }

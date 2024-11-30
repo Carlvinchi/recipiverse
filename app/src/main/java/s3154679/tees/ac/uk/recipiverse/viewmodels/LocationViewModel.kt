@@ -9,15 +9,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
-import com.google.maps.android.ktx.utils.BuildConfig
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import s3154679.tees.ac.uk.recipiverse.R
 
 class LocationViewModel: ViewModel() {
 
@@ -28,6 +25,7 @@ class LocationViewModel: ViewModel() {
     private val _selectedLocation = MutableStateFlow<Place?>(null)
     val selectedLocation: StateFlow<Place?> get() = _selectedLocation
 
+    //for setting location
     fun updateLocation(location: Place) {
         viewModelScope.launch {
             _selectedLocation.emit(location)
@@ -35,7 +33,6 @@ class LocationViewModel: ViewModel() {
     }
 
     fun fetchNearbyPlaces(context: Context, locationCallback: (List<Place>) -> Unit) {
-
 
         val applicationInfo: ApplicationInfo = context.packageManager
             .getApplicationInfo(context.packageName, PackageManager.GET_META_DATA)
@@ -75,6 +72,7 @@ class LocationViewModel: ViewModel() {
             }
             .addOnFailureListener { exception ->
                 _loaderState.value = Loader.StopLoading
+
                 // Handle the failure case
                 exception.printStackTrace()
 

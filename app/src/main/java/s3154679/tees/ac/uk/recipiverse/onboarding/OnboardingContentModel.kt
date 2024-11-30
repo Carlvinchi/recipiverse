@@ -3,6 +3,8 @@ package s3154679.tees.ac.uk.recipiverse.onboarding
 import androidx.annotation.DrawableRes
 import s3154679.tees.ac.uk.recipiverse.R
 
+//onboarding pages model that contains the image, title and description
+
 sealed class OnboardingContentModel(
     @DrawableRes val image: Int,
     val title: String,
