@@ -39,6 +39,3 @@ data class  PostDetailsScreen(
     val userName: String,
     val userLocName: String,
 )
-
-@Serializable
-object EditPostScreen

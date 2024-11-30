@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
 
 
 
-        // Initialize the AuthViewModel
+        // Initialize All ViewModels
         val authViewModel: AuthViewModel by viewModels()
         val cameraViewModel: CameraViewModel by viewModels()
         val locationViewModel: LocationViewModel by viewModels()
@@ -38,6 +38,7 @@ class MainActivity : ComponentActivity() {
             RecipiverseTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 
+                    // Navigation
                     AppNavigation(
                         modifier = Modifier.padding(innerPadding),
                         authViewModel = authViewModel,

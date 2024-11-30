@@ -32,11 +32,12 @@ import s3154679.tees.ac.uk.recipiverse.onboarding.OnboardingScreenButtons
 
 @Composable
 fun OnboardingScreen(
-    modifier: Modifier = Modifier,
     navController: NavController
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
+    //onboarding pages
     val pages: List<OnboardingContentModel> = listOf(
         OnboardingContentModel.First,
         OnboardingContentModel.Second,
@@ -48,6 +49,8 @@ fun OnboardingScreen(
         pages.size
     }
 
+
+    //used to determine which button to show on the onboarding screen
     val buttonState: State<List<String>> = remember {
         derivedStateOf {
             when (pagerState.currentPage) {
@@ -59,11 +62,9 @@ fun OnboardingScreen(
         }
     }
 
-    val scope = rememberCoroutineScope()
 
     Scaffold(
 
-        // modifier = Modifier.background(Color(0xFF00BFA6)),
         containerColor = Color(0xFF00BFA6),
         bottomBar = {
             Row(
@@ -77,7 +78,6 @@ fun OnboardingScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
                 Box(
                     modifier = Modifier.weight(1f),
                     contentAlignment = Alignment.CenterStart
@@ -102,7 +102,6 @@ fun OnboardingScreen(
 
                 }
 
-
                 Box(
                     modifier = Modifier.weight(1f),
                     contentAlignment = Alignment.Center
@@ -112,7 +111,6 @@ fun OnboardingScreen(
                         currentPage = pagerState.currentPage
                     )
                 }
-
 
                 Box(
                     modifier = Modifier.weight(1f),
@@ -141,8 +139,6 @@ fun OnboardingScreen(
                         }
                     }
                 }
-
-
 
             }
         },

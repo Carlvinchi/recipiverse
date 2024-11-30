@@ -9,7 +9,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,8 +30,8 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -64,9 +63,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.model.Place
-import s3154679.tees.ac.uk.recipiverse.navigation.EditPostScreen
 import s3154679.tees.ac.uk.recipiverse.navigation.HomeScreen
-import s3154679.tees.ac.uk.recipiverse.viewmodels.AuthState
 import s3154679.tees.ac.uk.recipiverse.viewmodels.AuthViewModel
 import s3154679.tees.ac.uk.recipiverse.viewmodels.CameraViewModel
 import s3154679.tees.ac.uk.recipiverse.viewmodels.Loader
@@ -77,7 +74,6 @@ import s3154679.tees.ac.uk.recipiverse.viewmodels.UploadState
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun CreatePostScreen(
-    modifier: Modifier,
     navController: NavHostController,
     authViewModel: AuthViewModel,
     locationViewModel: LocationViewModel,
@@ -90,18 +86,18 @@ fun CreatePostScreen(
     val scope = rememberCoroutineScope()
 
 
-
-    //observe auth state and loader state from viewmodel
-    val authState = authViewModel.authState.observeAsState()
+    //observe all states from viewmodel
     val loaderState = locationViewModel.loaderState.observeAsState()
     val uploadState = cameraViewModel.uploadState.observeAsState()
     val userState = authViewModel.user.observeAsState()
+
 
     //observe image media uri and video media uri
     val imageMediaUri by cameraViewModel.imageMediaUri.collectAsState()
     val videoMediaUri by cameraViewModel.videoMediaUri.collectAsState()
 
-    //show when post creation is successful
+
+    //show some message when post creation is triggered
     LaunchedEffect(uploadState.value) {
         when(uploadState.value) {
             is UploadState.Uploaded -> {
@@ -109,15 +105,19 @@ fun CreatePostScreen(
                 navController.navigate(HomeScreen)
             }
             is UploadState.Error -> {
-                Toast.makeText(context, (uploadState.value as UploadState.Error).message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, (uploadState.value as UploadState.Error).message, Toast.LENGTH_LONG).show()
             }
             else ->Unit
         }
     }
 
-    //to store places when api is called
+
+    //location related variables
     val placesList = remember { mutableStateOf<List<Place>>(emptyList()) }
     val location = locationViewModel.selectedLocation.collectAsStateWithLifecycle().value
+    var selectedOption by remember { mutableStateOf("") }
+    var showLocation by remember { mutableStateOf(false) }
+
 
     //location access permissions
     val locationPermissions = rememberMultiplePermissionsState(
@@ -127,18 +127,8 @@ fun CreatePostScreen(
         )
     )
 
-    //tracking selected location
-    var selectedOption by remember { mutableStateOf("") }
 
-
-    //tracking selected category
-    var selectedCategory by remember { mutableStateOf("") }
-
-    //to control when to show select location
-    var showLocation by remember { mutableStateOf(false) }
-
-
-    // Request camera and microphone permissions
+    // Request camera and microphone permissions for recording video
     val cameraPermissionState = rememberMultiplePermissionsState(
         listOf(
             Manifest.permission.CAMERA,
@@ -146,13 +136,17 @@ fun CreatePostScreen(
         )
     )
 
+
+
+    // Image and video related variables
     var cameraImageUri by remember {
         mutableStateOf<Uri?>(null)
     }
-
     var cameraVideoUri by remember {
         mutableStateOf<Uri?>(null)
     }
+    var showImageHolder by remember { mutableStateOf(false) }
+    var showVideoHolder by remember { mutableStateOf(false) }
 
 
     // Take Photo launcher
@@ -182,13 +176,11 @@ fun CreatePostScreen(
         uri?.let { cameraViewModel.setVideoMediaUri(it) }
     }
 
+
+    //post related variables
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-
-    var disableButton by remember { mutableStateOf(false) }
-
-
-
+    var selectedCategory by remember { mutableStateOf("") }
     val categoriesList = listOf(
         "AFRICAN",
         "ASIAN",
@@ -196,244 +188,291 @@ fun CreatePostScreen(
         "AMERICAN"
     )
 
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = "Create Post Page", fontSize = 32.sp)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Spacer(modifier = Modifier.height(25.dp))
-
-        OutlinedTextField(
-            modifier = Modifier.padding(8.dp),
-            value = title,
-            onValueChange = {
-                title = it
-            },
-            label = {
-                Text(text = "Title")
-            }
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        SelectCategory(
-            options = categoriesList,
-            selectedOption = selectedCategory,
-            onOptionSelected = { selectedCategory = it }
-        )
+    //for controlling the post creation button
+    var disableButton by remember { mutableStateOf(false) }
 
 
-        Spacer(modifier = Modifier.height(10.dp))
+    Scaffold(
 
-        OutlinedTextField(
-            modifier = Modifier.padding(8.dp),
-            value = description,
-            onValueChange = {
-                description = it
-            },
-            label = {
-                Text(text = "Description")
-            }
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        //Start for  camera and gallery image
-        Row(
-            modifier = Modifier,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-
-            //take photo with camera
-            Button(
-                onClick = {
-
-                    // Request Camera permissions if it is not already granted
-                    if (!cameraPermissionState.allPermissionsGranted) {
-                        cameraPermissionState.launchMultiplePermissionRequest()
-                    }
-                    else {
-                        val cameraFile = cameraViewModel.createImageFile(context)
-
-                        cameraImageUri = cameraViewModel.getFileUri(context, cameraFile)
-
-                        cameraImageUri?.let {
-
-                            cameraLauncher.launch(it)
-                        }
-                    }
-
-                },
-                colors = ButtonColors(
-                    containerColor = Color(0xFF00BFA6),
-                    contentColor = Color.White,
-                    disabledContainerColor = Color.Gray,
-                    disabledContentColor = Color.White
-                )
+        topBar = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
-                Text(text = "Take Photo")
-
-
-            }
-
-
-            //choose from gallery
-            Button(
-                onClick = {
-                    galleryLauncher.launch("image/*")
-                },
-                colors = ButtonColors(
-                    containerColor = Color(0xFF00BFA6),
-                    contentColor = Color.White,
-                    disabledContainerColor = Color.Gray,
-                    disabledContentColor = Color.White
+                Text(
+                    text = "Create Post", fontSize = 32.sp
                 )
-            ) {
-
-                Text(text = "Choose Photo")
-
             }
 
-        }
+        },
+        containerColor = Color.White,
+    ) { innerPadding ->
 
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Box(
-            modifier = Modifier
-                .size(350.dp)
-                .border(width = 2.dp, color = Color.White, shape = RectangleShape)
-                .background(Color.Gray, shape = RectangleShape),
-        ) {
-            // Display the selected or captured image
-            imageMediaUri?.let { uri ->
-
-
-                Text(text = "Post Feature Image")
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                // Display the selected or captured image
-                DisplayImage(imageUri = uri)
-
-            }
-        }
-
-        //end for camera and gallery image
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-
-        //Start for  camera and gallery video
-        Row(
-            modifier = Modifier,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-
-            //record video with camera
-            Button(
-                onClick = {
-
-                    // Request Camera permissions if it is not already granted
-                    if (!cameraPermissionState.allPermissionsGranted) {
-                        cameraPermissionState.launchMultiplePermissionRequest()
-                    }
-                    else {
-                        val videoFile = cameraViewModel.createVideoFile(context)
-
-                        cameraVideoUri = cameraViewModel.getFileUri(context, videoFile)
-
-                        cameraVideoUri?.let {
-
-                            recordVideoLauncher.launch(it)
-                        }
-                    }
-
-                },
-                colors = ButtonColors(
-                    containerColor = Color(0xFF00BFA6),
-                    contentColor = Color.White,
-                    disabledContainerColor = Color.Gray,
-                    disabledContentColor = Color.White
-                )
-            ) {
-
-                Text(text = "Record Video")
-
-            }
-
-            //choose from gallery
-            Button(
-                onClick = {
-                    videoGalleryLauncher.launch("video/*")
-                },
-                colors = ButtonColors(
-                    containerColor = Color(0xFF00BFA6),
-                    contentColor = Color.White,
-                    disabledContainerColor = Color.Gray,
-                    disabledContentColor = Color.White
-                )
-            ) {
-
-                Text(text = "Choose Video")
-
-            }
-
-        }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Box(
-            modifier = Modifier
-                .size(350.dp)
-                .border(width = 2.dp, color = Color.White, shape = RectangleShape)
-                .background(Color.Gray, shape = RectangleShape)
-                .padding(bottom = 15.dp),
-        ){
-            // Display the selected or captured video
-            videoMediaUri?.let { uri ->
-                VidPlayer(context = context, videoUri = uri)
-            }
-
-
-
-        }
-        //end for camera and gallery video
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-
-        //start for location
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.padding(innerPadding)
+                .fillMaxSize()
+                .background(Color.White)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            //Add location button
+
+            OutlinedTextField(
+                modifier = Modifier.padding(8.dp),
+                value = title,
+                onValueChange = {
+                    title = it
+                },
+                label = {
+                    Text(text = "Title")
+                }
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            SelectCategory(
+                options = categoriesList,
+                selectedOption = selectedCategory,
+                onOptionSelected = { selectedCategory = it }
+            )
+
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            OutlinedTextField(
+                modifier = Modifier.padding(8.dp).height(80.dp),
+                value = description,
+                onValueChange = {
+                    description = it
+                },
+                label = {
+                    Text(text = "Description")
+                }
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+
+            //Start for  camera and gallery image
+            Row(
+                modifier = Modifier,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+
+                //take photo with camera button
+                Button(
+                    modifier = Modifier.padding(end = 10.dp),
+                    onClick = {
+
+                        // Request Camera permissions if it is not already granted
+                        if (!cameraPermissionState.allPermissionsGranted) {
+                            cameraPermissionState.launchMultiplePermissionRequest()
+                            val cameraFile = cameraViewModel.createImageFile(context)
+
+                            cameraImageUri = cameraViewModel.getFileUri(context, cameraFile)
+
+                            cameraImageUri?.let {
+
+                                cameraLauncher.launch(it)
+                            }
+                            showImageHolder = true
+                        }
+                        else {
+                            val cameraFile = cameraViewModel.createImageFile(context)
+
+                            cameraImageUri = cameraViewModel.getFileUri(context, cameraFile)
+
+                            cameraImageUri?.let {
+
+                                cameraLauncher.launch(it)
+                            }
+
+                            showImageHolder = true
+                        }
+
+                    },
+                ) {
+
+                    Text(text = "Take Photo")
+
+
+                }
+
+
+                //choose from gallery button
+                Button(
+                    modifier = Modifier.padding(start = 10.dp),
+                    onClick = {
+                        galleryLauncher.launch("image/*")
+                        showImageHolder = true
+                    },
+                ) {
+
+                    Text(text = "Choose Photo")
+
+                }
+
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+
+            //show image if picture is taken or selected from gallery
+            if(showImageHolder){
+
+                imageMediaUri?.let { uri ->
+
+                    DisplayImage(imageUri = uri)
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+            }
+            //end for camera and gallery image
+
+
+
+            //Start for  camera and gallery video
+            Row(
+                modifier = Modifier,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+
+                //record video with camera button
+                Button(
+                    modifier = Modifier.padding(end = 10.dp),
+                    onClick = {
+
+                        // Request Camera permissions if it is not already granted
+                        if (!cameraPermissionState.allPermissionsGranted) {
+                            cameraPermissionState.launchMultiplePermissionRequest()
+                            val videoFile = cameraViewModel.createVideoFile(context)
+
+                            cameraVideoUri = cameraViewModel.getFileUri(context, videoFile)
+
+                            cameraVideoUri?.let {
+
+                                recordVideoLauncher.launch(it)
+                            }
+                            showVideoHolder = true
+                        }
+                        else {
+                            val videoFile = cameraViewModel.createVideoFile(context)
+
+                            cameraVideoUri = cameraViewModel.getFileUri(context, videoFile)
+
+                            cameraVideoUri?.let {
+
+                                recordVideoLauncher.launch(it)
+                            }
+
+                            showVideoHolder = true
+                        }
+
+                    },
+                ) {
+
+                    Text(text = "Record Video")
+
+                }
+
+                //choose video from gallery button
+                Button(
+                    modifier = Modifier.padding(start = 10.dp),
+                    onClick = {
+                        videoGalleryLauncher.launch("video/*")
+                        showVideoHolder = true
+                    }
+                ) {
+
+                    Text(text = "Choose Video")
+
+                }
+
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+
+            //show video if video is recorded or selected from gallery
+            if(showVideoHolder){
+
+                videoMediaUri?.let { uri ->
+                    VidPlayer(context = context, videoUri = uri)
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+            }
+            //end for camera and gallery video
+
+
+            //start for location
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                //Add location button
+                Button(
+                    onClick = {
+
+                        // Request Camera permissions if it is not already granted
+                        if (!locationPermissions.allPermissionsGranted) {
+                            locationPermissions.launchMultiplePermissionRequest()
+
+                        }
+                        else {
+
+                            locationViewModel.fetchNearbyPlaces(context) { places ->
+                                placesList.value = places
+                                showLocation = true
+                            }
+                        }
+
+                    },
+                ) {
+                    Text(text = "Add Location")
+
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // show progress when state is loading
+                if(loaderState.value == Loader.Loading){
+                    CircularProgressIndicator()
+                }
+
+
+                //shows a list of locations if add location button has been pressed
+                if(showLocation){
+
+                    SelectInput(
+                        options = placesList.value,
+                        selectedOption = selectedOption,
+                        onOptionSelected = { selectedOption = it },
+                        locationViewModel = locationViewModel
+                    )
+                }
+
+
+                Spacer(modifier = Modifier.height(10.dp))
+            }
+            //end for location
+
+
+            //create post button, will send post to firestore
             Button(
+                modifier = Modifier.padding(bottom = 15.dp, top = 15.dp),
                 onClick = {
 
-                    // Request Camera permissions if it is not already granted
-                    if (!locationPermissions.allPermissionsGranted) {
-                        locationPermissions.launchMultiplePermissionRequest()
-
-
-                    }
-                    else {
-                        // This function is in the fetchPlaces.kt file
-                        locationViewModel.fetchNearbyPlaces(context) { places ->
-                            placesList.value = places
-                            showLocation = true
-                        }
-                    }
+                    cameraViewModel.addPost(
+                        title = title,
+                        description = description,
+                        image = imageMediaUri?: Uri.EMPTY,
+                        video = videoMediaUri?: Uri.EMPTY,
+                        userName = userState.value?.name ?: "",
+                        locName = location?.name ?: "",
+                        latLng = location?.latLng?: LatLng(0.0, 0.0),
+                        scope = scope,
+                        category = selectedCategory
+                    )
 
                 },
                 colors = ButtonColors(
@@ -441,111 +480,70 @@ fun CreatePostScreen(
                     contentColor = Color.White,
                     disabledContainerColor = Color.Gray,
                     disabledContentColor = Color.White
-                )
+                ),
+                enabled = !disableButton
             ) {
-                Text(text = "Add Location")
 
+                Text(text = "Create Post")
+
+            }
+
+
+            Box(
+                modifier = Modifier.padding(bottom = 25.dp)
+            ){
+                // show progress when state is loading
+                if(uploadState.value == UploadState.Loading){
+                    disableButton = true
+
+                    CircularProgressIndicator()
+                }
             }
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // show progress when state is loading
-            if(loaderState.value == Loader.Loading){
-                CircularProgressIndicator()
-            }
-
-
-            if(showLocation){
-
-                SelectInput(
-                    options = placesList.value,
-                    selectedOption = selectedOption,
-                    onOptionSelected = { selectedOption = it },
-                    locationViewModel = locationViewModel
-                )
-            }
-
-
-
-            Spacer(modifier = Modifier.height(10.dp))
         }
-        //end for location
-
-
-        Button(
-            modifier = Modifier.padding(bottom = 15.dp, top = 15.dp),
-            onClick = {
-
-                cameraViewModel.addPost(
-                    title = title,
-                    description = description,
-                    image = imageMediaUri!!,
-                    video = videoMediaUri!!,
-                    userName = userState.value?.name ?: "",
-                    locName = location?.name ?: "",
-                    latLng = location?.latLng?: LatLng(0.0, 0.0),
-                    scope = scope,
-                    category = selectedCategory
-                )
-
-            },
-            colors = ButtonColors(
-                containerColor = Color(0xFF00BFA6),
-                contentColor = Color.White,
-                disabledContainerColor = Color.Gray,
-                disabledContentColor = Color.White
-            ),
-            enabled = !disableButton
-        ) {
-
-            Text(text = "Submit")
-
-        }
-
-
-        Box(
-            modifier = Modifier.padding(bottom = 25.dp)
-        ){
-            // show progress when state is loading
-            if(uploadState.value == UploadState.Loading){
-                disableButton = true
-
-                CircularProgressIndicator()
-            }
-        }
-
-
-        Spacer(modifier = Modifier.height(20.dp))
 
     }
+
+
 }
 
 
+//composable for displaying image
 @Composable
 fun DisplayImage(
     imageUri: Uri?
 ) {
-    AsyncImage(
-        model = imageUri,
-        contentDescription = "Feature Image",
+
+    Box(
         modifier = Modifier
             .size(350.dp)
-            .clip(shape = RectangleShape),
-        contentScale = ContentScale.Crop
-    )
+            .border(width = 2.dp, color = Color.White, shape = RectangleShape)
+            .background(Color.Gray, shape = RectangleShape),
+    ) {
+        AsyncImage(
+            model = imageUri,
+            contentDescription = "Feature Image",
+            modifier = Modifier
+                .size(350.dp)
+                .clip(shape = RectangleShape),
+            contentScale = ContentScale.Crop
+        )
+    }
+
 }
 
+
+//composable for displaying video
 @Composable
 fun VidPlayer(
-    modifier: Modifier = Modifier,
     context: Context,
     videoUri: Uri?
 ) {
-
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build()
     }
-
 
     // Set MediaSource to ExoPlayer
     LaunchedEffect(videoUri) {
@@ -564,17 +562,27 @@ fun VidPlayer(
         }
     }
 
-    AndroidView(
-        factory = { ctx ->
-            PlayerView(ctx).apply {
-                player = exoPlayer
-            }
-        },
+    Box(
         modifier = Modifier
-            .size(350.dp)// Set your desired height
-    )
+            .size(350.dp)
+            .border(width = 2.dp, color = Color.White, shape = RectangleShape)
+            .background(Color.Gray, shape = RectangleShape),
+    ) {
+        AndroidView(
+            factory = { ctx ->
+                PlayerView(ctx).apply {
+                    player = exoPlayer
+                }
+            },
+            modifier = Modifier
+                .size(350.dp)
+        )
+    }
+
 }
 
+
+//composable for selecting location
 @Composable
 fun SelectInput(
     options: List<Place>,
@@ -582,7 +590,8 @@ fun SelectInput(
     onOptionSelected: (String) -> Unit,
     locationViewModel: LocationViewModel
 ) {
-    var expanded by remember { mutableStateOf(false) } // State to control dropdown visibility
+
+    var expanded by remember { mutableStateOf(false) }
     var textFieldValue by remember { mutableStateOf(TextFieldValue(selectedOption)) }
 
     Column(
@@ -593,7 +602,7 @@ fun SelectInput(
             value = textFieldValue,
             onValueChange = { textFieldValue = it },
             modifier = Modifier
-                .clickable { expanded = true }, // Open dropdown on click
+                .clickable { expanded = true },
             label = { Text("Select your location") },
             trailingIcon = {
                 Icon(
@@ -602,12 +611,12 @@ fun SelectInput(
                     modifier = Modifier.clickable { expanded = !expanded }
                 )
             },
-            readOnly = true // Prevent manual input
+            readOnly = true
         )
         DropdownMenu(
             modifier = Modifier.height(350.dp),
             expanded = expanded,
-            onDismissRequest = { expanded = false } // Close dropdown when clicked outside
+            onDismissRequest = { expanded = false }
         ) {
             options.forEach { option ->
                 DropdownMenuItem(
@@ -616,7 +625,7 @@ fun SelectInput(
 
                         textFieldValue = TextFieldValue(option.name ?: "")
                         onOptionSelected(option.name?: "")
-                        expanded = false // Close dropdown on selection
+                        expanded = false
                     },
                     text = {
                         Text(option.name?: "")
@@ -628,13 +637,14 @@ fun SelectInput(
 }
 
 
+//composable for selecting category
 @Composable
 fun SelectCategory(
     options: List<String>,
     selectedOption: String,
     onOptionSelected: (String) -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) } // State to control dropdown visibility
+    var expanded by remember { mutableStateOf(false) }
     var textFieldValue by remember { mutableStateOf(TextFieldValue(selectedOption)) }
 
     Column(
@@ -645,7 +655,7 @@ fun SelectCategory(
             value = textFieldValue,
             onValueChange = { textFieldValue = it },
             modifier = Modifier
-                .clickable { expanded = true }, // Open dropdown on click
+                .clickable { expanded = true },
             label = { Text("Select category") },
             trailingIcon = {
                 Icon(
@@ -654,12 +664,12 @@ fun SelectCategory(
                     modifier = Modifier.clickable { expanded = !expanded }
                 )
             },
-            readOnly = true // Prevent manual input
+            readOnly = true
         )
         DropdownMenu(
             modifier = Modifier.height(300.dp),
             expanded = expanded,
-            onDismissRequest = { expanded = false } // Close dropdown when clicked outside
+            onDismissRequest = { expanded = false }
         ) {
             options.forEach { option ->
                 DropdownMenuItem(
@@ -667,7 +677,7 @@ fun SelectCategory(
 
                         textFieldValue = TextFieldValue(option)
                         onOptionSelected(option)
-                        expanded = false // Close dropdown on selection
+                        expanded = false
                     },
                     text = {
                         Text(option)

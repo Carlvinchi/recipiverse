@@ -17,6 +17,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+
+//This code is used to display the onboarding progress indicator
+
 @Composable
 fun OnboardingProgressIndicator(
     pageSize: Int,
