@@ -1,1 +1,1 @@
-This the main branch with fully functional versions of the app.
+This the main branch with fully functional versions of the app. The app is fully functional now.
