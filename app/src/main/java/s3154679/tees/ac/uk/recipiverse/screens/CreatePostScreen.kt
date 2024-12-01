@@ -49,6 +49,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -200,7 +202,9 @@ fun CreatePostScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Create Post", fontSize = 32.sp
+                    text = "Create Post", fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
                 )
             }
 
@@ -218,6 +222,7 @@ fun CreatePostScreen(
         ) {
 
             OutlinedTextField(
+                textStyle = TextStyle(Color.Black),
                 modifier = Modifier.padding(8.dp),
                 value = title,
                 onValueChange = {
@@ -240,6 +245,7 @@ fun CreatePostScreen(
             Spacer(modifier = Modifier.height(10.dp))
 
             OutlinedTextField(
+                textStyle = TextStyle(Color.Black),
                 modifier = Modifier.padding(8.dp).height(80.dp),
                 value = description,
                 onValueChange = {
@@ -599,6 +605,7 @@ fun SelectInput(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         OutlinedTextField(
+            textStyle = TextStyle(Color.Black),
             value = textFieldValue,
             onValueChange = { textFieldValue = it },
             modifier = Modifier
@@ -628,7 +635,10 @@ fun SelectInput(
                         expanded = false
                     },
                     text = {
-                        Text(option.name?: "")
+                        Text(
+                            option.name?: "",
+                            color = Color.Black,
+                        )
                     }
                 )
             }
@@ -652,6 +662,7 @@ fun SelectCategory(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         OutlinedTextField(
+            textStyle = TextStyle(Color.Black),
             value = textFieldValue,
             onValueChange = { textFieldValue = it },
             modifier = Modifier
@@ -680,7 +691,10 @@ fun SelectCategory(
                         expanded = false
                     },
                     text = {
-                        Text(option)
+                        Text(
+                            option,
+                            color = Color.Black,
+                        )
                     }
                 )
             }

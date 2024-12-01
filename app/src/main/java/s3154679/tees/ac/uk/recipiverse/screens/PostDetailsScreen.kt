@@ -93,7 +93,9 @@ fun PostDetailsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Post Details", fontSize = 32.sp
+                    text = "Post Details", fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
                 )
             }
 
@@ -102,7 +104,7 @@ fun PostDetailsScreen(
     ) { innerPadding ->
 
         Column(
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding).padding(top = 10.dp)
                 .fillMaxSize()
                 .background(Color.White),
             verticalArrangement = Arrangement.Center,
@@ -162,6 +164,7 @@ fun Item(
             fontSize = 25.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Start,
+            color = Color.Black,
             modifier = Modifier.padding(bottom = 10.dp)
 
         )
@@ -200,6 +203,7 @@ fun Item(
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Start,
+            color = Color.Black,
             modifier = Modifier.padding(bottom = 15.dp)
 
         )
@@ -217,15 +221,17 @@ fun Item(
         Text(
             text = "Date Posted: $postDate",
             style = MaterialTheme.typography.bodySmall,
+            color = Color.Black,
             modifier = Modifier.padding(bottom = 10.dp),
-            textAlign = TextAlign.Start
+
         )
 
         Text(
             text = "Created By: $userName",
             style = MaterialTheme.typography.bodySmall,
+            color = Color.Black,
             modifier = Modifier.padding(bottom = 10.dp),
-            textAlign = TextAlign.Start
+
         )
 
 
@@ -242,7 +248,8 @@ fun Item(
                 text = "Posted From: $userLocName",
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(bottom = 5.dp),
-                textAlign = TextAlign.Start
+                color = Color.Black,
+
             )
 
             TextButton(
@@ -254,7 +261,8 @@ fun Item(
                 ) {
                 Text(
                     text = "View Location",
-                    textAlign = TextAlign.Start
+
+                    fontWeight = FontWeight.Bold,
                 )
             }
         }

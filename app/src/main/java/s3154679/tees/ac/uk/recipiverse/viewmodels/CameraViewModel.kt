@@ -287,7 +287,7 @@ class CameraViewModel: ViewModel() {
                         )
                     }
 
-                    _post.value = posts
+                    _post.value = posts.reversed() //so new posts are at the top
 
                     _uploadState.value = UploadState.StopLoading
                 }
@@ -332,7 +332,7 @@ class CameraViewModel: ViewModel() {
                         )
                     }
 
-                    _post.value = posts
+                    _post.value = posts.reversed() //so new posts are at the top
 
                     _uploadState.value = UploadState.StopLoading
                 }
@@ -386,7 +386,7 @@ class CameraViewModel: ViewModel() {
                         )
                     }
 
-                    _post.value = posts
+                    _post.value = posts.reversed() //so new posts are at the top
 
                     _uploadState.value = UploadState.StopLoading
                 }
@@ -432,7 +432,7 @@ class CameraViewModel: ViewModel() {
                         )
                     }
 
-                    _post.value = posts
+                    _post.value = posts.reversed() //so new posts are at the top
 
                     _uploadState.value = UploadState.StopLoading
                 }
@@ -449,21 +449,35 @@ class CameraViewModel: ViewModel() {
     }
 
     //function to delete posts by Id from firestore database
-    fun deletePostById(postId: String, scope: CoroutineScope) {
+    fun deletePostById(postId: String, image: String, video: String, scope: CoroutineScope) {
+
+        val imageStorageRef = FirebaseStorage.getInstance().getReferenceFromUrl(image)
+        val videoStorageRef = FirebaseStorage.getInstance().getReferenceFromUrl(video)
 
         _uploadState.value = UploadState.Loading
 
         scope.launch {
 
             try {
-                firestore.collection(postsCollection).document(postId).delete()
+                videoStorageRef.delete()
                     .addOnSuccessListener {
+                        imageStorageRef.delete().addOnSuccessListener {
 
+                            firestore.collection(postsCollection).document(postId).delete()
+                                .addOnSuccessListener {
 
-                        _uploadState.value = UploadState.Uploaded("Post deleted successfully")
+                                    _uploadState.value = UploadState.Uploaded("Post deleted successfully")
+                                }
+                                .addOnFailureListener{
+                                    _uploadState.value = UploadState.Error("Posts delete failed")
+                                }
+                        }
+                            .addOnFailureListener {
+                                _uploadState.value = UploadState.Error("Posts image delete failed")
+                            }
                     }
-                    .addOnFailureListener{
-                        _uploadState.value = UploadState.Error("Posts delete failed")
+                    .addOnFailureListener {
+                        _uploadState.value = UploadState.Error("Posts video delete failed")
                     }
 
             }catch (e: Exception){

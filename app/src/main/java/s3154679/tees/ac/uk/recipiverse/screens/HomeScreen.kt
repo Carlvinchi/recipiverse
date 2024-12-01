@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -165,6 +166,7 @@ fun PostItem(post: Post, navController: NavHostController) {
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Left,
+                    color = Color.Black,
                     modifier = Modifier.padding(
                         top = 10.dp,
                         start = 5.dp,
@@ -179,6 +181,7 @@ fun PostItem(post: Post, navController: NavHostController) {
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Left,
+                    color = Color.Black,
                     modifier = Modifier.padding(
                         top = 2.dp,
                         start = 5.dp,
@@ -208,6 +211,7 @@ fun MyTopBar(cameraViewModel: CameraViewModel) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         OutlinedTextField(
+            textStyle = TextStyle(Color.Black),
             modifier = Modifier.padding(8.dp)
                 .height(55.dp)
                 .border(1.dp, Color.Gray, CircleShape)

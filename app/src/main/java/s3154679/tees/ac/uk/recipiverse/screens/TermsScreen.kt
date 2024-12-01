@@ -37,8 +37,8 @@ fun TermsScreen(navController: NavHostController) {
             .padding(
                 top = 30.dp,
                 bottom = 10.dp,
-                start = 5.dp,
-                end = 5.dp
+                start = 7.dp,
+                end = 7.dp
             )
             .fillMaxSize()
             .background(Color.White)
@@ -64,7 +64,8 @@ fun TermsScreen(navController: NavHostController) {
         Text(
             text = stringResource(R.string.terms_conditions),
             fontSize = 18.sp,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            color = Color.Black
         )
 
         Button(

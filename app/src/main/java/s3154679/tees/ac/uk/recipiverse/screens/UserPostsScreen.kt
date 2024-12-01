@@ -91,7 +91,9 @@ fun UserPostsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "User Posts", fontSize = 32.sp
+                    text = "User Posts", fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
                 )
             }
 
@@ -193,6 +195,7 @@ fun UserPostItem(post: Post, navController: NavHostController, cameraViewModel: 
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Left,
+                color = Color.Black,
                 modifier = Modifier.padding(
                     top = 10.dp,
                     start = 5.dp,
@@ -208,6 +211,7 @@ fun UserPostItem(post: Post, navController: NavHostController, cameraViewModel: 
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Left,
+                color = Color.Black,
                 modifier = Modifier.padding(
                     top = 2.dp,
                     start = 5.dp,
@@ -225,7 +229,12 @@ fun UserPostItem(post: Post, navController: NavHostController, cameraViewModel: 
                 }
 
             ) {
-                Text(text = "Delete Post")
+                Text(
+                    text = "Delete Post",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Red,
+                )
 
             }
 
@@ -237,7 +246,7 @@ fun UserPostItem(post: Post, navController: NavHostController, cameraViewModel: 
                     confirmButton = {
                         TextButton(
                             onClick = {
-                                cameraViewModel.deletePostById(post.id, scope)
+                                cameraViewModel.deletePostById(post.id, post.image, post.video, scope)
                                 showDeleteConfirmationDialog = false
                             }
                         ){

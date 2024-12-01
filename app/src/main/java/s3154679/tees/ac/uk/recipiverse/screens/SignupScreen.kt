@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
@@ -25,6 +27,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -112,12 +116,14 @@ fun SignUpScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White),
+            .background(Color.White)
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = "RECIPIVERSE",
+            modifier = Modifier.padding(top = 10.dp),
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF00BFA6)
@@ -135,12 +141,17 @@ fun SignUpScreen(
             text = "Welcome!",
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
+            color = Color.Black
         )
 
-        Text(text = "Sign up for an account")
+        Text(
+            text = "Sign up for an account",
+            color = Color.Black
+        )
         Spacer(modifier = Modifier.height(5.dp))
 
         OutlinedTextField(
+            textStyle = TextStyle(Color.Black),
             value = name,
             onValueChange = {
                 name = it
@@ -167,6 +178,7 @@ fun SignUpScreen(
         )
 
         OutlinedTextField(
+            textStyle = TextStyle(Color.Black),
             value = email,
             onValueChange = {
                 email = it.trim()
@@ -193,6 +205,7 @@ fun SignUpScreen(
         )
 
         OutlinedTextField(
+            textStyle = TextStyle(Color.Black),
             value = password,
             onValueChange = {
                 password = it
@@ -229,7 +242,18 @@ fun SignUpScreen(
 
             //terms and conditions Text
             val termsText = buildAnnotatedString {
-                append("I agree to the ")
+
+                withStyle(
+                    style = SpanStyle(
+                        color = Color.Black,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        textDecoration = TextDecoration.Underline
+                    )
+                ){
+                    append("I agree to the ")
+                }
+
                 pushStringAnnotation(tag = "TERMS", annotation = "terms")
                 withStyle(
                     style = SpanStyle(
@@ -281,6 +305,7 @@ fun SignUpScreen(
 
         Text(
             text = "Or sign up with",
+            color = Color.Black
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -301,15 +326,21 @@ fun SignUpScreen(
 
 
         //navigate to login page
-        Row {
-            Text(text = "Already have an account? ")
+        Row(
+            modifier = Modifier.padding(bottom = 10.dp)
+        ) {
+            Text(
+                text = "Already have an account? ",
+                color = Color.Black
+            )
             Text(
                 text = "Login",
                 modifier = Modifier
                     .clickable {
                         navController.navigate(LoginScreen)
                     },
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
             )
         }
 

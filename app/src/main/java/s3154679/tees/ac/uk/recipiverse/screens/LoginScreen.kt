@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
@@ -22,6 +24,7 @@ import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -96,7 +100,8 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White),
+            .background(Color.White)
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -119,19 +124,24 @@ fun LoginScreen(
             text = "Welcome Back",
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
+            color = Color.Black
+
         )
 
 
         Spacer(modifier = Modifier.height(15.dp))
 
         OutlinedTextField(
+            textStyle = TextStyle(Color.Black),
             value = email,
             onValueChange = {
                 email = it.trim()
                 isEmailError = !Patterns.EMAIL_ADDRESS.matcher(it).matches() || it.isEmpty()
             },
             label = {
-                Text(text = "Email")
+                Text(
+                    text = "Email"
+                )
             },
             isError = isEmailError,
             supportingText = {
@@ -153,6 +163,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(15.dp))
 
         OutlinedTextField(
+            textStyle = TextStyle(Color.Black),
             value = password,
             onValueChange = {
                 password = it
@@ -185,7 +196,8 @@ fun LoginScreen(
                 .padding(end = 15.dp)
                 .align(Alignment.End)
                 .clickable {  },
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
 
         )
 
@@ -217,6 +229,7 @@ fun LoginScreen(
 
         Text(
             text = "Or sign in with",
+            color = Color.Black
         )
 
         Spacer(modifier = Modifier.height(15.dp))
@@ -239,7 +252,10 @@ fun LoginScreen(
 
         //navigate to sign up screen when clicked
         Row {
-            Text(text = "Don't have an account? ")
+            Text(
+                text = "Don't have an account? ",
+                color = Color.Black
+            )
             Text(
                 text = "Sign Up",
                 modifier = Modifier
@@ -247,7 +263,8 @@ fun LoginScreen(
                         navController.navigate(SignupScreen)
 
                     },
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
             )
         }
 

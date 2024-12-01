@@ -192,25 +192,46 @@ class AuthViewModel : ViewModel() {
                 auth.signInWithCredential(firebaseCredential).addOnCompleteListener{task->
                     if (task.isSuccessful){
 
+                        val userId = auth.currentUser?.uid
+
                         //fetch user details from firestore when signin is successful
-                        getUserFromFirestore()
+                        firestore.collection(usersCollection).document(userId!!).get()
+                            .addOnSuccessListener {
 
-                        //add user details to firestore  if it does not already exist when signin/signup with Google is successful
-                        if(user.value?.email == null || user.value?.name == null){
-                            addUserToFirestore(
-                                auth.currentUser?.displayName ?: "no name",
-                                auth.currentUser?.email ?: "no email",
-                                auth.currentUser?.uid ?: "no uid"
-                            )
+                                //add user details to firestore  if it does not already exist when signin/signup with Google is successful
+                                if(it.get("name").toString() == "null"){
 
-                            //fetch user details from firestore after it has been added to firestore
-                            getUserFromFirestore()
-                        }
+                                    addUserToFirestore(
+                                        auth.currentUser?.displayName ?: "no name",
+                                        auth.currentUser?.email ?: "no email",
+                                        auth.currentUser?.uid ?: "no uid"
+                                    )
+                                }
+                                else{
+                                    val name = it.get("name").toString()
+                                    val email = it.get("email").toString()
+                                    val profileImage = it.get("profileImageUrl").toString()
 
+                                    _user.value = User(name, email, profileImage)
+                                }
 
-                        //update loader state and authentication state
-                        _loaderState.value = Loader.StopLoading
-                        _authState.value = AuthState.Authenticated
+                                _loaderState.value = Loader.StopLoading
+                                _authState.value = AuthState.Authenticated
+
+                            }
+                            .addOnFailureListener {
+                                //add user details to firestore  if it does not already exist when signin/signup with Google is successful
+                                addUserToFirestore(
+                                    auth.currentUser?.displayName ?: "no name",
+                                    auth.currentUser?.email ?: "no email",
+                                    auth.currentUser?.uid ?: "no uid"
+                                )
+
+                                //fetch user details from firestore after it has been added to firestore
+                               // getUserFromFirestore()
+                                _loaderState.value = Loader.StopLoading
+                                _authState.value = AuthState.Authenticated
+                            }
 
                     }else{
 
@@ -372,6 +393,8 @@ class AuthViewModel : ViewModel() {
                 firestore.collection(usersCollection).document(userId!!).delete()
                     .addOnSuccessListener {
 
+                        deleteUserAuthenticationFromFirebase()
+
                         _loaderState.value = Loader.StopLoading
                         _authState.value = AuthState.Unauthenticated
 
@@ -389,6 +412,33 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    //for deleting user authentication details in firebase authentication
+    private fun deleteUserAuthenticationFromFirebase() {
+
+        try {
+            auth.currentUser?.delete()?.addOnCompleteListener{task->
+                if (task.isSuccessful){
+
+
+                    //update loader state
+                    _loaderState.value = Loader.StopLoading
+
+                }else{
+
+                    //update loader state and authentication state
+                    _loaderState.value = Loader.StopLoading
+                    _authState.value = AuthState.Error(task.exception?.message?:"Something went wrong")
+
+                }
+
+            }
+        }catch (e: Exception) {
+
+            //update loader state and authentication state
+            _loaderState.value = Loader.StopLoading
+            _authState.value = e.message?.let { AuthState.Error(it) }
+        }
+    }
 
 
 }

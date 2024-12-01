@@ -44,6 +44,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -151,7 +153,9 @@ fun ProfileScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Profile Details", fontSize = 32.sp
+                    text = "Profile Details", fontSize = 32.sp,
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold
                 )
             }
 
@@ -160,7 +164,7 @@ fun ProfileScreen(
     ) { innerPadding ->
 
         Column(
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding).padding(top = 10.dp)
                 .fillMaxSize()
                 .background(Color.White)
                 .verticalScroll(rememberScrollState()),
@@ -274,6 +278,7 @@ fun ProfileScreen(
 
 
             OutlinedTextField(
+                textStyle = TextStyle(Color.Black),
                 value = name,
                 onValueChange = {
                     name = it
@@ -296,6 +301,7 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
+                textStyle = TextStyle(Color.Black),
                 value = email,
                 onValueChange = {
                     email = it.trim()
